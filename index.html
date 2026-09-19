@@ -399,6 +399,8 @@
     overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
   }
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -416,6 +418,9 @@
 </header>
 
 <main>
+  <div class="banner" id="sync-banner" hidden>
+    Tidak dapat sambung ke storan dikongsi buat masa ini. Semak sambungan internet anda — perubahan mungkin tidak tersimpan/tersegerak.
+  </div>
   <div id="calendar"><!-- rendered by script --></div>
 </main>
 
@@ -498,6 +503,20 @@
 (function(){
   "use strict";
 
+  var firebaseConfig = {
+    apiKey: "AIzaSyDYiI8xZfAjqYe4sVvfW0B_7_1Lh4Z1mLM",
+    authDomain: "jadual-booking-kelas.firebaseapp.com",
+    projectId: "jadual-booking-kelas",
+    storageBucket: "jadual-booking-kelas.firebasestorage.app",
+    messagingSenderId: "280478882145",
+    appId: "1:280478882145:web:19631d7988ee6c12584d20"
+  };
+  firebase.initializeApp(firebaseConfig);
+  var db = firebase.firestore();
+  // Everything is stored as one document: { data: [ ...bookings ] }.
+  // onSnapshot below keeps every open tab/device in sync in real time.
+  var bookingsDocRef = db.collection('jadualKelas').doc('bookings');
+
   var SUBJECTS = [
     {name:"Bahasa Melayu", color:"#E63946"},
     {name:"English", color:"#457B9D"},
@@ -527,6 +546,7 @@
   var pendingBooking = null;
 
   var calendarEl = document.getElementById('calendar');
+  var syncBanner = document.getElementById('sync-banner');
   var addOverlay = document.getElementById('add-overlay');
   var clashOverlay = document.getElementById('clash-overlay');
   var openAddBtn = document.getElementById('open-add-btn');
@@ -770,29 +790,22 @@
     return 'b-' + Date.now() + '-' + Math.random().toString(16).slice(2);
   }
 
-  var STORAGE_KEY = 'jadual-kelas-bookings';
-
-  function loadFromStorage(){
-    try{
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return [];
-      var data = JSON.parse(raw);
-      return Array.isArray(data) ? data : [];
-    } catch(e){ return []; }
-  }
-
-  // Applies computeFn(currentBaseline) and saves the result to this
-  // browser's local storage. Runs synchronously; kept async-shaped so the
-  // call sites (and their loading states) don't need to change.
+  // Applies computeFn(currentBaseline) and writes the result to the shared
+  // Firestore document. Every open device is subscribed via onSnapshot
+  // (see init below), so a successful write here is what makes everyone
+  // else's page update — this function does NOT touch local `bookings` or
+  // call render() itself; the onSnapshot listener does that for every
+  // client, including this one, once the write is confirmed.
   async function persistState(computeFn){
     var candidate = computeFn(bookings);
     try{
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(candidate));
-      bookings = candidate;
-      render();
+      await bookingsDocRef.set({
+        data: candidate,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
       return {ok:true};
     } catch(e){
-      return {ok:false, message:'Gagal menyimpan pada peranti ini. Storan pelayar mungkin penuh atau disekat.'};
+      return {ok:false, message:'Gagal menyimpan. Semak sambungan internet anda dan cuba lagi.'};
     }
   }
 
@@ -879,12 +892,25 @@
     }
   }
 
+  var firstSnapshotReceived = false;
+
   function init(){
     populateSelects();
-    bookings = loadFromStorage();
-    render();
-    tick();
-    setInterval(tick, 60000);
+    calendarEl.innerHTML = '<div class="empty-state"><div class="display">Memuatkan…</div></div>';
+
+    bookingsDocRef.onSnapshot(function(snap){
+      syncBanner.hidden = true;
+      var data = (snap.exists && snap.data() && snap.data().data) || [];
+      bookings = Array.isArray(data) ? data : [];
+      render();
+      if(!firstSnapshotReceived){
+        firstSnapshotReceived = true;
+        tick();
+        setInterval(tick, 60000);
+      }
+    }, function(err){
+      syncBanner.hidden = false;
+    });
   }
 
   init();
