@@ -1,0 +1,1783 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jadual Kelas — 5 SIGMA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<style>
+  :root{
+    --bg:#F3F1FA;
+    --surface:#FFFFFF;
+    --surface-2:#FBFAFF;
+    --ink:#241F3D;
+    --ink-soft:#655D86;
+    --ink-faint:#8981A6;
+    --border:#E4DFF5;
+    --header-bg:#241D46;
+    --header-bg-2:#332867;
+    --shadow:rgba(43,34,80,0.14);
+    --danger-bg:#FDE9EC;
+    --danger-ink:#B3213A;
+    --danger-border:#F3C1CB;
+    --live-bg:#E7F8EE;
+    --live-ink:#1B8A4C;
+    --live-border:#BEEBD0;
+    --accent:#5B4FE0;
+    --accent-ink:#FFFFFF;
+    --warn-bg:#FFF4E0;
+    --warn-ink:#93600A;
+    --warn-border:#F5DDA8;
+    --info-bg:#E8F0FE;
+    --info-ink:#1B4FA0;
+    --info-border:#C6DAFB;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#15111F;
+      --surface:#211A38;
+      --surface-2:#281F42;
+      --ink:#F1EEFA;
+      --ink-soft:#C3BBE0;
+      --ink-faint:#9188B4;
+      --border:#392F58;
+      --header-bg:#0E0A1C;
+      --header-bg-2:#1A1436;
+      --shadow:rgba(0,0,0,0.5);
+      --danger-bg:#3A1E27;
+      --danger-ink:#FF9DAE;
+      --danger-border:#5C2A38;
+      --live-bg:#12331F;
+      --live-ink:#6FE3A0;
+      --live-border:#1F5C3C;
+      --accent:#8C7DFF;
+      --accent-ink:#15111F;
+      --warn-bg:#3A2C10;
+      --warn-ink:#F5C05C;
+      --warn-border:#5C4A1E;
+      --info-bg:#132542;
+      --info-ink:#8FB8FF;
+      --info-border:#233F6C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#15111F;
+    --surface:#211A38;
+    --surface-2:#281F42;
+    --ink:#F1EEFA;
+    --ink-soft:#C3BBE0;
+    --ink-faint:#9188B4;
+    --border:#392F58;
+    --header-bg:#0E0A1C;
+    --header-bg-2:#1A1436;
+    --shadow:rgba(0,0,0,0.5);
+    --danger-bg:#3A1E27;
+    --danger-ink:#FF9DAE;
+    --danger-border:#5C2A38;
+    --live-bg:#12331F;
+    --live-ink:#6FE3A0;
+    --live-border:#1F5C3C;
+    --accent:#8C7DFF;
+    --accent-ink:#15111F;
+    --warn-bg:#3A2C10;
+    --warn-ink:#F5C05C;
+    --warn-border:#5C4A1E;
+    --info-bg:#132542;
+    --info-ink:#8FB8FF;
+    --info-border:#233F6C;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Karla',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{font-family:'Fredoka',system-ui,sans-serif;}
+  button{font-family:inherit;}
+  a{color:inherit;}
+
+  /* ---------- Layout shell ---------- */
+  #app{
+    display:flex;
+    min-height:100vh;
+  }
+  .sidebar{
+    width:236px;
+    flex:0 0 auto;
+    background:linear-gradient(180deg,var(--header-bg),var(--header-bg-2));
+    color:#F6F4FF;
+    padding:20px 14px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+  }
+  .sidebar .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:6px 10px 18px;
+  }
+  .sidebar .brand .logo-dot{
+    width:34px;height:34px;border-radius:10px;
+    background:linear-gradient(135deg,#FF6B6B,#FFB703);
+    display:flex;align-items:center;justify-content:center;
+    font-size:17px;flex:0 0 auto;
+  }
+  .sidebar .brand-text{display:flex;flex-direction:column;line-height:1.15;}
+  .sidebar .brand-text strong{font-family:'Fredoka',sans-serif;font-size:15px;}
+  .sidebar .brand-text span{font-size:11px;color:#B6ADDD;letter-spacing:0.5px;}
+  .nav-link{
+    display:flex;align-items:center;gap:11px;
+    padding:11px 12px;
+    border-radius:12px;
+    color:#D9D3F5;
+    text-decoration:none;
+    font-size:14.5px;
+    font-weight:600;
+    cursor:pointer;
+    border:none;
+    background:transparent;
+    width:100%;
+    text-align:left;
+  }
+  .nav-link .ic{font-size:17px;width:20px;text-align:center;flex:0 0 auto;}
+  .nav-link:hover{background:rgba(255,255,255,0.08);color:#fff;}
+  .nav-link.active{background:rgba(255,255,255,0.14);color:#fff;}
+  .sidebar-footer{margin-top:auto;padding-top:10px;}
+  .theme-toggle{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 12px;border-radius:12px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.1);
+    color:#D9D3F5;font-size:13px;font-weight:600;
+    cursor:pointer;width:100%;
+  }
+  .theme-toggle:hover{background:rgba(255,255,255,0.12);}
+
+  .topbar{
+    display:none;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:14px 16px;
+    background:linear-gradient(155deg,var(--header-bg),var(--header-bg-2));
+    color:#fff;
+    position:sticky;top:0;z-index:30;
+  }
+  .topbar .tb-title{font-family:'Fredoka',sans-serif;font-weight:600;font-size:17px;}
+  .topbar .tb-actions{display:flex;align-items:center;gap:8px;}
+  .icon-btn{
+    width:36px;height:36px;border-radius:10px;
+    border:1px solid rgba(255,255,255,0.16);
+    background:rgba(255,255,255,0.06);
+    color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px;cursor:pointer;
+  }
+
+  .content-wrap{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;}
+  .content{
+    flex:1 1 auto;
+    padding:26px 30px 90px;
+    max-width:1180px;
+    width:100%;
+    margin:0 auto;
+  }
+  .view{display:none;}
+  .view.active{display:block;}
+
+  .bottom-nav{
+    display:none;
+    position:fixed;bottom:0;left:0;right:0;
+    background:var(--surface);
+    border-top:1px solid var(--border);
+    box-shadow:0 -6px 20px var(--shadow);
+    z-index:30;
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));
+  }
+  .bottom-nav-inner{display:flex;justify-content:space-around;}
+  .bn-link{
+    display:flex;flex-direction:column;align-items:center;gap:2px;
+    padding:6px 8px;border-radius:10px;
+    border:none;background:transparent;
+    color:var(--ink-faint);font-size:10.5px;font-weight:700;
+    cursor:pointer;flex:1 1 0;
+  }
+  .bn-link .ic{font-size:19px;}
+  .bn-link.active{color:var(--accent);}
+
+  @media (max-width:959px){
+    .sidebar{display:none;}
+    .topbar{display:flex;}
+    .content{padding:18px 14px 90px;}
+    .bottom-nav{display:block;}
+  }
+
+  .drawer-overlay{
+    position:fixed;inset:0;background:rgba(15,10,30,0.55);z-index:60;display:none;
+  }
+  .drawer-overlay.open{display:block;}
+  .drawer{
+    position:fixed;top:0;left:0;bottom:0;width:250px;
+    background:linear-gradient(180deg,var(--header-bg),var(--header-bg-2));
+    color:#F6F4FF;padding:18px 14px;
+    transform:translateX(-100%);
+    transition:transform 0.22s ease;
+    display:flex;flex-direction:column;gap:4px;
+    overflow-y:auto;
+  }
+  .drawer-overlay.open .drawer{transform:translateX(0);}
+
+  /* ---------- Common page bits ---------- */
+  .page-head{margin-bottom:20px;}
+  .page-head h1{font-size:24px;font-weight:600;margin:0 0 4px;}
+  .page-head p{margin:0;color:var(--ink-soft);font-size:14px;}
+  .page-head-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+
+  .btn{
+    font-size:14.5px;font-weight:600;border-radius:12px;
+    padding:11px 16px;border:none;cursor:pointer;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn.primary{background:var(--accent);color:var(--accent-ink);}
+  .btn.primary:disabled{opacity:0.6;cursor:wait;}
+  .btn.ghost{background:transparent;color:var(--ink-soft);border:1.5px solid var(--border);}
+  .btn.danger{background:#D9364B;color:#fff;}
+  .btn.danger:disabled{opacity:0.6;cursor:wait;}
+  .btn.sm{padding:7px 12px;font-size:13px;border-radius:10px;}
+  .btn.block{width:100%;justify-content:center;}
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    box-shadow:0 8px 22px var(--shadow);
+  }
+
+  .stat-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin-bottom:22px;
+  }
+  @media (max-width:820px){ .stat-grid{grid-template-columns:repeat(2,1fr);} }
+  .stat-card{
+    padding:16px 16px 14px;
+  }
+  .stat-card .stat-ic{font-size:20px;margin-bottom:8px;}
+  .stat-card .stat-value{font-family:'Fredoka',sans-serif;font-size:26px;font-weight:600;line-height:1;}
+  .stat-card .stat-label{color:var(--ink-soft);font-size:12.5px;margin-top:5px;}
+
+  .section-title{
+    display:flex;align-items:center;justify-content:space-between;
+    margin:26px 0 12px;gap:10px;
+  }
+  .section-title h2{font-size:16.5px;font-weight:600;margin:0;}
+  .section-title .link{font-size:13px;font-weight:700;color:var(--accent);background:none;border:none;cursor:pointer;}
+
+  .timeline-item{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 14px;border-radius:13px;
+    background:var(--surface-2);
+    border-left:4px solid var(--accent);
+    margin-bottom:8px;
+  }
+  .timeline-time{font-weight:700;font-size:13.5px;min-width:52px;color:var(--ink);}
+  .timeline-main{flex:1;min-width:0;}
+  .timeline-main .t-subject{font-weight:700;font-size:14.5px;}
+  .timeline-main .t-teacher{color:var(--ink-soft);font-size:12.5px;}
+
+  .empty-state{
+    text-align:center;padding:46px 20px;
+    color:var(--ink-soft);
+    background:var(--surface);
+    border:1px dashed var(--border);
+    border-radius:18px;
+  }
+  .empty-state .es-ic{font-size:30px;margin-bottom:8px;}
+  .empty-state .display{font-size:16px;color:var(--ink);margin:0 0 4px;font-weight:600;}
+  .empty-state p{margin:0 0 14px;font-size:13.5px;}
+
+  /* ---------- Booking rows (shared) ---------- */
+  .class-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+  .class-row{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:12px 10px 12px 14px;border-radius:13px;
+    background:var(--surface-2);border-left:5px solid var(--accent-c,var(--accent));
+  }
+  .class-main{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .subject-name{font-weight:700;color:var(--accent-c,var(--accent));font-size:14.5px;}
+  .teacher-name{color:var(--ink-soft);font-size:12.5px;letter-spacing:0.2px;}
+  .class-notes{color:var(--ink-faint);font-size:11.5px;font-style:italic;margin-top:1px;}
+  .class-right{display:flex;align-items:center;gap:6px;flex:0 0 auto;}
+  .class-time{font-variant-numeric:tabular-nums;font-weight:600;font-size:13.5px;white-space:nowrap;}
+  .row-btn{
+    width:27px;height:27px;border-radius:50%;border:1.5px solid var(--border);
+    background:var(--surface);color:var(--ink-soft);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;
+  }
+  .row-btn:hover{background:var(--danger-bg);color:var(--danger-ink);border-color:var(--danger-border);}
+  .row-btn.edit-btn:hover{background:var(--info-bg);color:var(--info-ink);border-color:var(--info-border);}
+  .row-btn svg{width:13px;height:13px;}
+
+  .status-badge{
+    display:inline-flex;align-items:center;gap:5px;margin-top:4px;
+    font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;
+    padding:3px 8px 3px 6px;border-radius:999px;
+    background:var(--live-bg);color:var(--live-ink);border:1px solid var(--live-border);
+    width:fit-content;
+  }
+  .status-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--live-ink);}
+  @media (prefers-reduced-motion:no-preference){
+    .status-badge .dot{animation:pulse-dot 1.6s ease-in-out infinite;}
+  }
+  @keyframes pulse-dot{0%,100%{opacity:1;}50%{opacity:0.35;}}
+
+  /* ---------- Jadual (calendar) ---------- */
+  .cal-toolbar{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:10px;flex-wrap:wrap;margin-bottom:14px;
+  }
+  .cal-nav{display:flex;align-items:center;gap:6px;}
+  .cal-mode-group{display:flex;gap:4px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:3px;}
+  .cal-mode-btn{
+    border:none;background:transparent;padding:7px 12px;border-radius:9px;
+    font-size:13px;font-weight:700;color:var(--ink-soft);cursor:pointer;
+  }
+  .cal-mode-btn.active{background:var(--accent);color:var(--accent-ink);}
+  .cal-label{font-family:'Fredoka',sans-serif;font-weight:600;font-size:15.5px;min-width:150px;text-align:center;}
+
+  .filter-bar{
+    display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;
+  }
+  .filter-bar input[type="text"],.filter-bar select{
+    padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);
+    background:var(--surface-2);color:var(--ink);font-size:13.5px;font-family:inherit;
+  }
+  .filter-bar input[type="text"]{flex:1 1 200px;}
+  .filter-bar select{flex:0 1 150px;}
+
+  .week-view{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+  .week-head-row{display:grid;grid-template-columns:52px repeat(7,1fr);border-bottom:1px solid var(--border);}
+  .week-head-cell{padding:9px 4px;text-align:center;font-size:11px;font-weight:700;color:var(--ink-soft);border-left:1px solid var(--border);}
+  .week-head-cell:first-child{border-left:none;}
+  .week-head-cell .wd-date{display:block;font-size:14px;font-family:'Fredoka',sans-serif;color:var(--ink);margin-top:1px;}
+  .week-head-cell.is-today{color:var(--accent);}
+  .week-scroll{overflow-x:auto;}
+  .week-body{position:relative;display:grid;grid-template-columns:52px repeat(7,1fr);min-width:640px;}
+  .week-time-col{display:flex;flex-direction:column;}
+  .week-time-cell{height:48px;font-size:10.5px;color:var(--ink-faint);text-align:right;padding-right:6px;transform:translateY(-6px);}
+  .week-lines-col{border-left:1px solid var(--border);position:relative;}
+  .week-hour-line{height:48px;border-bottom:1px solid var(--border);}
+  .week-events-overlay{position:absolute;top:0;left:52px;right:0;bottom:0;display:flex;pointer-events:none;}
+  .week-day-col{flex:1 1 0;position:relative;border-left:1px solid transparent;}
+  .week-event{
+    position:absolute;left:2px;right:2px;border-radius:8px;
+    padding:3px 6px;font-size:10.5px;line-height:1.25;overflow:hidden;
+    background:var(--surface);border-left:3px solid var(--accent-c,var(--accent));
+    box-shadow:0 2px 6px var(--shadow);pointer-events:auto;cursor:pointer;
+  }
+  .week-event strong{display:block;color:var(--accent-c,var(--accent));font-size:10.5px;}
+  .week-event span{color:var(--ink-soft);font-size:9.5px;}
+
+  .day-card{background:var(--surface);border-radius:16px;border:1px solid var(--border);box-shadow:0 8px 22px var(--shadow);overflow:hidden;}
+  .day-head{padding:14px 16px;border-bottom:1px solid var(--border);font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;}
+  .day-body{padding:10px;}
+
+  .month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .month-dow{text-align:center;font-size:11px;font-weight:700;color:var(--ink-soft);padding-bottom:4px;}
+  .month-cell{
+    min-height:76px;background:var(--surface);border:1px solid var(--border);border-radius:11px;
+    padding:6px;cursor:pointer;display:flex;flex-direction:column;gap:3px;
+  }
+  .month-cell:hover{border-color:var(--accent);}
+  .month-cell.outside{opacity:0.4;}
+  .month-cell.is-today{border-color:var(--accent);border-width:2px;}
+  .month-daynum{font-size:12px;font-weight:700;}
+  .month-dot-row{display:flex;flex-wrap:wrap;gap:2px;}
+  .month-dot{width:7px;height:7px;border-radius:50%;background:var(--accent-c,var(--accent));}
+  .month-more{font-size:9.5px;color:var(--ink-faint);}
+
+  /* ---------- Form (Tempah Slot) ---------- */
+  .form-card{padding:22px;max-width:560px;}
+  .field{margin-bottom:15px;}
+  .field label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-soft);margin-bottom:6px;}
+  .field select,.field input,.field textarea{
+    width:100%;padding:11px 12px;border-radius:11px;border:1.5px solid var(--border);
+    background:var(--surface-2);color:var(--ink);font-size:15px;font-family:inherit;
+  }
+  .field textarea{resize:vertical;min-height:64px;}
+  .field select:focus,.field input:focus,.field textarea:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  .field-help{font-size:12px;color:var(--ink-faint);margin-top:5px;}
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:480px){ .row-2{grid-template-columns:1fr;} }
+
+  .inline-banner{
+    border-radius:12px;padding:11px 13px;font-size:13px;margin-bottom:14px;display:flex;gap:8px;align-items:flex-start;
+  }
+  .inline-banner.warn{background:var(--warn-bg);color:var(--warn-ink);border:1px solid var(--warn-border);}
+  .inline-banner.danger{background:var(--danger-bg);color:var(--danger-ink);border:1px solid var(--danger-border);}
+  .inline-banner.info{background:var(--info-bg);color:var(--info-ink);border:1px solid var(--info-border);}
+  .inline-banner[hidden]{display:none;}
+
+  /* ---------- Guru / Subjek cards ---------- */
+  .entity-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+  .entity-card{padding:16px;cursor:pointer;}
+  .entity-card .e-ic{font-size:22px;margin-bottom:8px;}
+  .entity-card .e-name{font-weight:700;font-size:15px;margin-bottom:2px;}
+  .entity-card .e-sub{color:var(--ink-soft);font-size:12.5px;margin-bottom:8px;}
+  .entity-card .e-count{font-size:12px;font-weight:700;color:var(--accent);}
+  .entity-search{margin-bottom:16px;}
+  .entity-search input{width:100%;padding:11px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--ink);font-size:14px;font-family:inherit;}
+  .detail-back{margin-bottom:14px;}
+
+  /* ---------- Statistik ---------- */
+  .chart-card{padding:18px 18px 14px;margin-bottom:16px;}
+  .chart-card h3{font-size:14.5px;font-weight:700;margin:0 0 14px;}
+  .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+  .bar-label{width:118px;flex:0 0 auto;font-size:12.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bar-track{flex:1;background:var(--surface-2);border-radius:8px;height:16px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:8px;background:var(--accent);}
+  .bar-count{width:26px;flex:0 0 auto;text-align:right;font-size:12px;font-weight:700;}
+
+  /* ---------- Tetapan ---------- */
+  .settings-row{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:13px 16px;border-bottom:1px solid var(--border);
+  }
+  .settings-row:last-child{border-bottom:none;}
+  .settings-row .sr-subject{font-weight:700;font-size:14px;}
+  .settings-row .sr-teacher{color:var(--ink-soft);font-size:12.5px;margin-top:2px;}
+  .workshop-chip{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--surface-2);border:1px solid var(--border);border-radius:999px;
+    padding:5px 6px 5px 11px;font-size:12.5px;margin:3px 4px 0 0;
+  }
+  .workshop-chip button{border:none;background:transparent;color:var(--ink-faint);cursor:pointer;font-size:13px;line-height:1;padding:2px;}
+
+  /* ---------- Modals / dialogs (reused for clash + cancel + edit-confirm) ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(20,15,40,0.5);display:flex;align-items:flex-end;justify-content:center;z-index:80;}
+  .overlay[hidden]{display:none;}
+  @media (min-width:640px){ .overlay{align-items:center;padding:20px;} }
+  .sheet{background:var(--surface);width:100%;max-width:440px;border-radius:22px 22px 0 0;padding:22px 22px 26px;max-height:88vh;overflow-y:auto;box-shadow:0 -10px 40px rgba(0,0,0,0.25);}
+  @media (min-width:640px){ .sheet{border-radius:22px;} }
+  @media (prefers-reduced-motion:no-preference){ .sheet{animation:rise 0.22s ease-out;} }
+  @keyframes rise{from{transform:translateY(16px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  .sheet h2{font-size:19px;font-weight:600;margin:0 0 4px;}
+  .sheet .sub{color:var(--ink-soft);font-size:13.5px;margin:0 0 16px;}
+  .sheet-actions{display:flex;gap:10px;margin-top:16px;}
+  .clash-icon{width:38px;height:38px;border-radius:50%;background:var(--danger-bg);color:var(--danger-ink);display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:19px;}
+
+  /* ---------- Toasts ---------- */
+  #toast-container{
+    position:fixed;top:14px;right:14px;left:14px;z-index:100;
+    display:flex;flex-direction:column;align-items:flex-end;gap:8px;
+    pointer-events:none;
+  }
+  @media (min-width:640px){ #toast-container{left:auto;width:320px;} }
+  .toast{
+    pointer-events:auto;
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:12px;padding:11px 14px;box-shadow:0 10px 28px var(--shadow);
+    font-size:13.5px;display:flex;align-items:center;gap:9px;
+    max-width:100%;
+  }
+  .toast .t-ic{font-size:16px;flex:0 0 auto;}
+  .toast.success{border-left:4px solid var(--live-ink);}
+  .toast.warning{border-left:4px solid var(--warn-ink);}
+  .toast.error{border-left:4px solid var(--danger-ink);}
+  .toast.info{border-left:4px solid var(--info-ink);}
+  @media (prefers-reduced-motion:no-preference){
+    .toast{animation:toast-in 0.2s ease-out;}
+  }
+  @keyframes toast-in{from{transform:translateY(-8px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+</style>
+</head>
+<body>
+
+<div id="toast-container" aria-live="polite"></div>
+
+<div id="app">
+  <!-- Desktop sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo-dot">📅</div>
+      <div class="brand-text"><strong>JADUAL KELAS</strong><span>5 SIGMA</span></div>
+    </div>
+    <nav id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <button type="button" class="theme-toggle" id="theme-toggle-desktop">
+        <span class="ic" id="theme-ic-desktop">🌙</span><span id="theme-label-desktop">Dark Mode</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="content-wrap">
+    <!-- Mobile topbar -->
+    <header class="topbar">
+      <button type="button" class="icon-btn" id="open-drawer-btn" aria-label="Menu">☰</button>
+      <div class="tb-title">JADUAL KELAS</div>
+      <div class="tb-actions">
+        <button type="button" class="icon-btn" id="theme-toggle-mobile" aria-label="Tukar tema">🌙</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- Dashboard -->
+      <section class="view" id="view-dashboard">
+        <div class="page-head">
+          <h1>Selamat datang 👋</h1>
+          <p>Berikut ialah ringkasan jadual kelas anda.</p>
+        </div>
+        <div class="stat-grid" id="dash-stats"></div>
+        <div class="section-title"><h2>📅 Jadual Hari Ini</h2></div>
+        <div id="dash-today"></div>
+        <div class="section-title">
+          <h2>⏳ Tempahan Akan Datang</h2>
+          <button type="button" class="link" data-nav="jadual">Lihat Semua Jadual →</button>
+        </div>
+        <div id="dash-upcoming"></div>
+        <div style="margin-top:18px;">
+          <button type="button" class="btn primary" data-nav="tempah">➕ Tempah Slot</button>
+        </div>
+      </section>
+
+      <!-- Jadual -->
+      <section class="view" id="view-jadual">
+        <div class="page-head page-head-row">
+          <div><h1>📅 Jadual</h1><p>Lihat semua tempahan mengikut hari, minggu atau bulan.</p></div>
+          <button type="button" class="btn primary" data-nav="tempah">➕ Tempah Slot</button>
+        </div>
+
+        <div class="cal-toolbar">
+          <div class="cal-nav">
+            <button type="button" class="btn ghost sm" id="cal-prev">←</button>
+            <button type="button" class="btn ghost sm" id="cal-today">Hari ini</button>
+            <button type="button" class="btn ghost sm" id="cal-next">→</button>
+            <input type="date" id="cal-date-picker" class="sr-only-mobile" style="padding:8px 10px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--ink);font-family:inherit;">
+          </div>
+          <div class="cal-label" id="cal-label"></div>
+          <div class="cal-mode-group">
+            <button type="button" class="cal-mode-btn" data-mode="day">Hari</button>
+            <button type="button" class="cal-mode-btn active" data-mode="week">Minggu</button>
+            <button type="button" class="cal-mode-btn" data-mode="month">Bulan</button>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <input type="text" id="filter-search" placeholder="🔍 Cari guru, subjek atau kelas...">
+          <select id="filter-subject"><option value="">Semua Subjek</option></select>
+          <select id="filter-teacher"><option value="">Semua Guru</option></select>
+        </div>
+
+        <div id="jadual-body"></div>
+      </section>
+
+      <!-- Tempah Slot -->
+      <section class="view" id="view-tempah">
+        <div class="page-head">
+          <h1 id="tempah-title">➕ Tempah Slot</h1>
+          <p>Isikan butiran di bawah untuk menempah slot kelas.</p>
+        </div>
+        <div class="card form-card">
+          <div class="inline-banner danger" id="tempah-clash-banner" hidden></div>
+          <div class="inline-banner danger" id="tempah-error" hidden></div>
+          <form id="tempah-form">
+            <div class="field">
+              <label for="f-subject">📚 Subjek</label>
+              <select id="f-subject" required></select>
+            </div>
+            <div class="field">
+              <label for="f-teacher">👨‍🏫 Guru</label>
+              <select id="f-teacher" required></select>
+              <div class="field-help" id="f-teacher-help">Guru utama untuk subjek ini dipilih secara automatik.</div>
+            </div>
+            <div class="field" id="f-manual-wrap" hidden>
+              <label for="f-manual-name">Nama Guru</label>
+              <input type="text" id="f-manual-name" placeholder="Contoh: Cikgu Ahmad">
+            </div>
+            <div class="row-2">
+              <div class="field">
+                <label for="f-date">Tarikh</label>
+                <input type="date" id="f-date" required>
+              </div>
+              <div class="field">
+                <label for="f-day">Hari</label>
+                <select id="f-day" disabled></select>
+              </div>
+            </div>
+            <div class="row-2">
+              <div class="field">
+                <label for="f-from">Masa Mula</label>
+                <input type="time" id="f-from" required>
+              </div>
+              <div class="field">
+                <label for="f-to">Masa Tamat</label>
+                <input type="time" id="f-to" required>
+              </div>
+            </div>
+            <div class="field">
+              <label for="f-notes">Catatan (pilihan)</label>
+              <textarea id="f-notes" placeholder="Nota tambahan..."></textarea>
+            </div>
+            <div class="sheet-actions" style="margin-top:6px;">
+              <button type="button" class="btn ghost" id="f-cancel-btn" data-nav="jadual">Batal</button>
+              <button type="submit" class="btn primary" id="f-submit-btn" style="flex:1;">Simpan Tempahan</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Guru -->
+      <section class="view" id="view-guru">
+        <div class="page-head"><h1>👨‍🏫 Guru</h1><p>Senarai guru dan jadual mereka.</p></div>
+        <div id="guru-list-wrap">
+          <div class="entity-search"><input type="text" id="guru-search" placeholder="🔍 Cari guru..."></div>
+          <div class="entity-grid" id="guru-grid"></div>
+        </div>
+        <div id="guru-detail-wrap" hidden>
+          <button type="button" class="btn ghost sm detail-back" id="guru-back-btn">← Kembali ke Senarai Guru</button>
+          <div id="guru-detail-content"></div>
+        </div>
+      </section>
+
+      <!-- Subjek -->
+      <section class="view" id="view-subjek">
+        <div class="page-head"><h1>📚 Subjek</h1><p>Senarai subjek dan bilangan tempahan.</p></div>
+        <div id="subjek-list-wrap">
+          <div class="entity-grid" id="subjek-grid"></div>
+        </div>
+        <div id="subjek-detail-wrap" hidden>
+          <button type="button" class="btn ghost sm detail-back" id="subjek-back-btn">← Kembali ke Senarai Subjek</button>
+          <div id="subjek-detail-content"></div>
+        </div>
+      </section>
+
+      <!-- Statistik -->
+      <section class="view" id="view-statistik">
+        <div class="page-head"><h1>📊 Statistik Jadual</h1><p>Ringkasan data tempahan sebenar.</p></div>
+        <div class="stat-grid" id="stat-cards"></div>
+        <div class="chart-card"><h3>Tempahan Mengikut Subjek</h3><div id="chart-subject"></div></div>
+        <div class="chart-card"><h3>Tempahan Mengikut Hari</h3><div id="chart-day"></div></div>
+        <div class="chart-card"><h3>Waktu Paling Sibuk</h3><div id="chart-hour"></div></div>
+        <div class="chart-card"><h3>Penggunaan Guru</h3><div id="chart-teacher"></div></div>
+      </section>
+
+      <!-- Tetapan -->
+      <section class="view" id="view-tetapan">
+        <div class="page-head"><h1>⚙️ Tetapan</h1><p>Urus guru utama bagi setiap subjek.</p></div>
+        <div class="card" style="margin-bottom:18px;">
+          <div style="padding:14px 16px 4px;font-weight:700;font-size:14px;">👨‍🏫 Pengurusan Guru &amp; Subjek</div>
+          <div id="settings-teacher-list"></div>
+        </div>
+        <div class="section-title"><h2>🔧 Guru Bengkel</h2></div>
+        <div class="card" style="padding:16px;">
+          <div id="settings-workshop-list" style="margin-bottom:12px;"></div>
+          <div class="row-2">
+            <div class="field" style="margin-bottom:8px;">
+              <label>Subjek</label>
+              <select id="ws-subject"></select>
+            </div>
+            <div class="field" style="margin-bottom:8px;">
+              <label>Nama Guru Bengkel</label>
+              <input type="text" id="ws-name" placeholder="Contoh: Cikgu B">
+            </div>
+          </div>
+          <button type="button" class="btn primary sm" id="ws-add-btn">+ Tambah Guru Bengkel</button>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- Mobile bottom navigation -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner" id="bottom-nav-inner"></div>
+</nav>
+
+<!-- Mobile drawer -->
+<div class="drawer-overlay" id="drawer-overlay">
+  <div class="drawer">
+    <div class="brand"><div class="logo-dot">📅</div><div class="brand-text"><strong>JADUAL KELAS</strong><span>5 SIGMA</span></div></div>
+    <nav id="drawer-nav"></nav>
+  </div>
+</div>
+
+<!-- Clash confirm -->
+<div class="overlay" id="clash-overlay" hidden>
+  <div class="sheet" role="alertdialog" aria-modal="true" aria-labelledby="clash-title">
+    <div class="clash-icon">!</div>
+    <h2 id="clash-title">Pertindihan masa</h2>
+    <p id="clash-message" style="font-size:14.5px;line-height:1.5;"></p>
+    <div class="sheet-actions">
+      <button type="button" class="btn ghost" id="clash-cancel-btn">Batal</button>
+      <button type="button" class="btn primary" id="clash-confirm-btn" style="flex:1;">Ya, tetap tempah</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cancel booking confirm -->
+<div class="overlay" id="cancel-overlay" hidden>
+  <div class="sheet" role="alertdialog" aria-modal="true" aria-labelledby="cancel-title">
+    <h2 id="cancel-title">Adakah anda pasti mahu membatalkan tempahan ini?</h2>
+    <p id="cancel-message" class="sub"></p>
+    <div class="inline-banner danger" id="cancel-error" hidden></div>
+    <div class="sheet-actions">
+      <button type="button" class="btn ghost" id="cancel-no-btn">Batal</button>
+      <button type="button" class="btn danger" id="cancel-yes-btn" style="flex:1;">Ya, Batalkan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     Firebase
+  ========================================================= */
+  var firebaseConfig = {
+    apiKey: "AIzaSyDYiI8xZfAjqYe4sVvfW0B_7_1Lh4Z1mLM",
+    authDomain: "jadual-booking-kelas.firebaseapp.com",
+    projectId: "jadual-booking-kelas",
+    storageBucket: "jadual-booking-kelas.firebasestorage.app",
+    messagingSenderId: "280478882145",
+    appId: "1:280478882145:web:19631d7988ee6c12584d20"
+  };
+  firebase.initializeApp(firebaseConfig);
+  var db = firebase.firestore();
+  var bookingsDocRef = db.collection('jadualKelas').doc('bookings');
+  var configDocRef = db.collection('jadualKelas').doc('config');
+
+  /* =========================================================
+     Static data
+  ========================================================= */
+  var SUBJECTS = [
+    {name:"Bahasa Melayu", color:"#E63946", icon:"🗣️"},
+    {name:"English", color:"#457B9D", icon:"🔤"},
+    {name:"Sejarah", color:"#A9722B", icon:"📜"},
+    {name:"Matematik", color:"#2A9D8F", icon:"📐"},
+    {name:"Pendidikan Islam", color:"#6A4C93", icon:"🕌"},
+    {name:"Pendidikan Moral", color:"#C048B8", icon:"🤝"},
+    {name:"Matematik Tambahan", color:"#F4762A", icon:"➕"},
+    {name:"Biologi", color:"#4C8C4A", icon:"🧬"},
+    {name:"Kimia", color:"#D8A400", icon:"🧪"},
+    {name:"Fizik", color:"#EF476F", icon:"⚛️"}
+  ];
+  var SUBJECT_COLOR = {}, SUBJECT_ICON = {};
+  SUBJECTS.forEach(function(s){ SUBJECT_COLOR[s.name] = s.color; SUBJECT_ICON[s.name] = s.icon; });
+
+  var DEFAULT_SUBJECT_TEACHERS = {
+    "Bahasa Melayu": "Cikgu Tiong",
+    "English": "Teacher Hasyimah",
+    "Matematik": "Cikgu Azurah",
+    "Sejarah": "Cikgu Loh",
+    "Pendidikan Islam": "Ustazah Syarfanezha",
+    "Pendidikan Moral": "Cikgu Dylan",
+    "Matematik Tambahan": "Miss Dayang",
+    "Biologi": "Madam Patricia",
+    "Fizik": "Cikgu Syafira",
+    "Kimia": "Cikgu Azurah"
+  };
+
+  var EXEMPT_PAIRS = [["Pendidikan Islam","Pendidikan Moral"]];
+
+  var JS_DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  var DAY_LABELS_MY = {Sunday:"Ahad",Monday:"Isnin",Tuesday:"Selasa",Wednesday:"Rabu",Thursday:"Khamis",Friday:"Jumaat",Saturday:"Sabtu"};
+  // Week starts on Monday for display purposes.
+  var WEEK_ORDER = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+  var MALAY_MONTHS = ["Januari","Februari","Mac","April","Mei","Jun","Julai","Ogos","September","Oktober","November","Disember"];
+
+  var WEEK_START_HOUR = 7;
+  var WEEK_END_HOUR = 19;
+  var ROW_HEIGHT = 48;
+
+  /* =========================================================
+     Global state
+  ========================================================= */
+  var bookings = [];
+  var teacherConfig = { subjectTeachers: {}, workshopTeachers: {} };
+  Object.keys(DEFAULT_SUBJECT_TEACHERS).forEach(function(s){ teacherConfig.subjectTeachers[s] = DEFAULT_SUBJECT_TEACHERS[s]; });
+
+  var currentView = 'dashboard';
+  var calMode = 'week';
+  var calAnchor = new Date();
+  var filters = { search:'', subject:'', teacher:'' };
+  var editingBookingId = null;
+  var manualOverride = false;
+  var guruDetailName = null;
+  var subjekDetailName = null;
+  var configSeeded = false;
+  var firstBookingsSnapshot = false;
+
+  /* =========================================================
+     Utilities
+  ========================================================= */
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+  function pad2(n){ return (n<10?'0':'')+n; }
+  function isoDate(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+  function parseISO(iso){ return new Date(iso+'T00:00:00'); }
+  function addDays(d,n){ var r=new Date(d); r.setDate(r.getDate()+n); return r; }
+  function startOfWeek(d){ var r=new Date(d); var jsDay=r.getDay(); var diff=(jsDay===0?-6:1-jsDay); r.setDate(r.getDate()+diff); r.setHours(0,0,0,0); return r; }
+  function startOfMonth(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
+  function sameDate(a,b){ return isoDate(a)===isoDate(b); }
+  function dayNameFromISO(iso){ var d=parseISO(iso); return JS_DAYS[d.getDay()]; }
+  function formatDateDisplay(iso){ var p=iso.split('-'); return p.length===3 ? (p[2]+'/'+p[1]+'/'+p[0]) : iso; }
+  function formatTimeDisplay(t){ return String(t).replace(/^0(\d:)/, '$1'); }
+  function toMinutes(t){ var p=String(t).split(':'); return (parseInt(p[0],10)||0)*60+(parseInt(p[1],10)||0); }
+  function timesOverlap(aFrom,aTo,bFrom,bTo){ return toMinutes(aFrom)<toMinutes(bTo) && toMinutes(bFrom)<toMinutes(aTo); }
+  function bookingDateTime(dateISO,hhmm){ var p=String(hhmm).split(':'); var d=new Date(dateISO+'T00:00:00'); d.setHours(parseInt(p[0],10)||0,parseInt(p[1],10)||0,0,0); return d; }
+  function getClassStatus(b,now){
+    var start=bookingDateTime(b.date,b.from), end=bookingDateTime(b.date,b.to);
+    if(now>=end) return 'ended';
+    if(now>=start) return 'ongoing';
+    return 'upcoming';
+  }
+  function isExemptClash(a,b){
+    if(a===b) return false;
+    for(var i=0;i<EXEMPT_PAIRS.length;i++){ var p=EXEMPT_PAIRS[i]; if(p.indexOf(a)!==-1 && p.indexOf(b)!==-1) return true; }
+    return false;
+  }
+  function genId(){ if(window.crypto && crypto.randomUUID) return crypto.randomUUID(); return 'b-'+Date.now()+'-'+Math.random().toString(16).slice(2); }
+  function findBooking(id){ for(var i=0;i<bookings.length;i++){ if(bookings[i].id===id) return bookings[i]; } return null; }
+
+  function allKnownTeachers(){
+    var set = {};
+    Object.keys(teacherConfig.subjectTeachers).forEach(function(s){ set[teacherConfig.subjectTeachers[s]] = true; });
+    Object.keys(teacherConfig.workshopTeachers).forEach(function(s){
+      (teacherConfig.workshopTeachers[s]||[]).forEach(function(n){ set[n]=true; });
+    });
+    bookings.forEach(function(b){ set[b.teacher]=true; });
+    return Object.keys(set).sort();
+  }
+
+  /* =========================================================
+     Toasts
+  ========================================================= */
+  var TOAST_ICONS = {success:'✅', warning:'⚠️', error:'❌', info:'ℹ️'};
+  function toast(msg, type){
+    type = type || 'info';
+    var el = document.createElement('div');
+    el.className = 'toast ' + type;
+    el.setAttribute('role','status');
+    el.innerHTML = '<span class="t-ic">'+(TOAST_ICONS[type]||'ℹ️')+'</span><span>'+escapeHtml(msg)+'</span>';
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(function(){
+      el.style.transition = 'opacity 0.25s ease';
+      el.style.opacity = '0';
+      setTimeout(function(){ el.remove(); }, 260);
+    }, 3200);
+  }
+
+  /* =========================================================
+     Theme
+  ========================================================= */
+  function setTheme(mode){
+    if(mode === 'dark'){
+      document.documentElement.setAttribute('data-theme','dark');
+    } else {
+      document.documentElement.setAttribute('data-theme','light');
+    }
+    try{ localStorage.setItem('jadual-theme', mode); }catch(e){}
+    updateThemeIcons();
+  }
+  function currentTheme(){
+    var attr = document.documentElement.getAttribute('data-theme');
+    if(attr === 'dark' || attr === 'light') return attr;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function toggleTheme(){ setTheme(currentTheme() === 'dark' ? 'light' : 'dark'); }
+  function updateThemeIcons(){
+    var isDark = currentTheme() === 'dark';
+    var ic = isDark ? '☀️' : '🌙';
+    var label = isDark ? 'Light Mode' : 'Dark Mode';
+    document.getElementById('theme-ic-desktop').textContent = ic;
+    document.getElementById('theme-label-desktop').textContent = label;
+    document.getElementById('theme-toggle-mobile').textContent = ic;
+  }
+  function initTheme(){
+    var saved = null;
+    try{ saved = localStorage.getItem('jadual-theme'); }catch(e){}
+    if(saved === 'dark' || saved === 'light'){ document.documentElement.setAttribute('data-theme', saved); }
+    updateThemeIcons();
+  }
+
+  /* =========================================================
+     Navigation
+  ========================================================= */
+  var NAV_ITEMS = [
+    {id:'dashboard', label:'Dashboard', ic:'🏠'},
+    {id:'jadual', label:'Jadual', ic:'📅'},
+    {id:'tempah', label:'Tempah Slot', ic:'➕'},
+    {id:'guru', label:'Guru', ic:'👨‍🏫'},
+    {id:'subjek', label:'Subjek', ic:'📚'},
+    {id:'statistik', label:'Statistik', ic:'📊'},
+    {id:'tetapan', label:'Tetapan', ic:'⚙️'}
+  ];
+  var BOTTOM_NAV_IDS = ['dashboard','jadual','tempah','guru','tetapan'];
+
+  function buildNav(containerId, isDrawer){
+    var el = document.getElementById(containerId);
+    el.innerHTML = NAV_ITEMS.map(function(item){
+      return '<button type="button" class="nav-link" data-nav="'+item.id+'"><span class="ic">'+item.ic+'</span>'+escapeHtml(item.label)+'</button>';
+    }).join('');
+  }
+  function buildBottomNav(){
+    var byId = {};
+    NAV_ITEMS.forEach(function(item){ byId[item.id] = item; });
+    var el = document.getElementById('bottom-nav-inner');
+    el.innerHTML = BOTTOM_NAV_IDS.map(function(id){
+      var item = byId[id];
+      return '<button type="button" class="bn-link" data-nav="'+item.id+'"><span class="ic">'+item.ic+'</span>'+escapeHtml(item.label)+'</button>';
+    }).join('');
+  }
+
+  function navigateTo(viewId){
+    if(viewId === 'tempah' && editingBookingId === null){
+      resetTempahForm();
+    }
+    if(viewId !== 'guru'){ guruDetailName = null; }
+    if(viewId !== 'subjek'){ subjekDetailName = null; }
+    currentView = viewId;
+    document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+    var target = document.getElementById('view-'+viewId);
+    if(target) target.classList.add('active');
+    document.querySelectorAll('[data-nav]').forEach(function(btn){
+      btn.classList.toggle('active', btn.getAttribute('data-nav') === viewId);
+    });
+    closeDrawer();
+    window.scrollTo(0,0);
+    renderActiveView();
+  }
+
+  function closeDrawer(){ document.getElementById('drawer-overlay').classList.remove('open'); }
+
+  document.addEventListener('click', function(e){
+    var navBtn = e.target.closest ? e.target.closest('[data-nav]') : null;
+    if(navBtn){ navigateTo(navBtn.getAttribute('data-nav')); }
+  });
+
+  /* =========================================================
+     Rendering: dispatcher
+  ========================================================= */
+  function renderActiveView(){
+    if(currentView === 'dashboard') renderDashboard();
+    else if(currentView === 'jadual') renderJadual();
+    else if(currentView === 'guru') renderGuru();
+    else if(currentView === 'subjek') renderSubjek();
+    else if(currentView === 'statistik') renderStatistik();
+    else if(currentView === 'tetapan') renderTetapan();
+  }
+
+  /* =========================================================
+     Shared booking row renderer
+  ========================================================= */
+  function bookingRowHTML(b, opts){
+    opts = opts || {};
+    var color = SUBJECT_COLOR[b.subject] || '#7C6CE8';
+    var status = getClassStatus(b, new Date());
+    var badge = status === 'ongoing' ? '<span class="status-badge"><span class="dot"></span>Sedang Berlangsung</span>' : '';
+    var notes = b.notes ? '<div class="class-notes">"'+escapeHtml(b.notes)+'"</div>' : '';
+    var actions = '';
+    if(opts.showActions !== false){
+      actions = '<button type="button" class="row-btn edit-btn" data-edit-id="'+escapeHtml(b.id)+'" aria-label="Edit tempahan">'+
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>' +
+        '<button type="button" class="row-btn" data-delete-id="'+escapeHtml(b.id)+'" aria-label="Batalkan kelas ini">'+
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
+    }
+    var dateLabel = opts.showDate ? '<span style="color:var(--ink-faint);font-weight:600;">'+escapeHtml(formatDateDisplay(b.date))+' · </span>' : '';
+    return '<li class="class-row" style="--accent-c:'+color+'">' +
+      '<div class="class-main">' +
+        '<span class="subject-name">'+(SUBJECT_ICON[b.subject]||'')+' '+escapeHtml(b.subject)+'</span>' +
+        '<span class="teacher-name">'+dateLabel+escapeHtml(b.teacher)+'</span>' +
+        notes + badge +
+      '</div>' +
+      '<div class="class-right">' +
+        '<div class="class-time">'+escapeHtml(formatTimeDisplay(b.from))+'–'+escapeHtml(formatTimeDisplay(b.to))+'</div>' +
+        actions +
+      '</div>' +
+    '</li>';
+  }
+  function bookingListHTML(list, opts){
+    if(list.length === 0){
+      return '<div class="empty-state"><div class="es-ic">📅</div><div class="display">Tiada tempahan</div>' +
+        '<p>Belum ada kelas yang ditempah untuk tempoh ini.</p>' +
+        '<button type="button" class="btn primary sm" data-nav="tempah">+ Tempah Slot</button></div>';
+    }
+    return '<ul class="class-list">' + list.map(function(b){ return bookingRowHTML(b, opts); }).join('') + '</ul>';
+  }
+
+  document.addEventListener('click', function(e){
+    var editBtn = e.target.closest ? e.target.closest('[data-edit-id]') : null;
+    if(editBtn){ openEditBooking(editBtn.getAttribute('data-edit-id')); return; }
+    var delBtn = e.target.closest ? e.target.closest('[data-delete-id]') : null;
+    if(delBtn){ var b = findBooking(delBtn.getAttribute('data-delete-id')); if(b) openCancelSheet(b); }
+  });
+
+  /* =========================================================
+     Filtering (used by Jadual + search)
+  ========================================================= */
+  function applyFilters(list){
+    var q = filters.search.trim().toLowerCase();
+    return list.filter(function(b){
+      if(filters.subject && b.subject !== filters.subject) return false;
+      if(filters.teacher && b.teacher !== filters.teacher) return false;
+      if(q){
+        var hay = (b.subject+' '+b.teacher+' '+(b.notes||'')).toLowerCase();
+        if(hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+  }
+  function sortedBookings(){
+    return bookings.slice().sort(function(a,b){
+      var da = a.date+'T'+a.from, db_ = b.date+'T'+b.from;
+      return da < db_ ? -1 : (da > db_ ? 1 : 0);
+    });
+  }
+
+  /* =========================================================
+     Dashboard
+  ========================================================= */
+  function renderDashboard(){
+    var now = new Date();
+    var todayISO = isoDate(now);
+    var sorted = sortedBookings();
+    var todays = sorted.filter(function(b){ return b.date === todayISO; });
+    var upcoming = sorted.filter(function(b){ return getClassStatus(b, now) !== 'ended' && b.date >= todayISO; }).slice(0,6);
+    var teacherCount = allKnownTeachers().length;
+
+    document.getElementById('dash-stats').innerHTML = [
+      statCardHTML('📚','Jumlah Tempahan', bookings.length),
+      statCardHTML('👨\u200d🏫','Jumlah Guru', teacherCount),
+      statCardHTML('📅','Tempahan Hari Ini', todays.length),
+      statCardHTML('⏳','Tempahan Akan Datang', upcoming.length)
+    ].join('');
+
+    var dashToday = document.getElementById('dash-today');
+    if(todays.length === 0){
+      dashToday.innerHTML = '<div class="empty-state"><div class="es-ic">📅</div><div class="display">Tiada kelas ditempah untuk hari ini.</div></div>';
+    } else {
+      dashToday.innerHTML = todays.map(function(b){
+        var color = SUBJECT_COLOR[b.subject] || '#7C6CE8';
+        return '<div class="timeline-item" style="border-left-color:'+color+'">' +
+          '<div class="timeline-time">'+escapeHtml(formatTimeDisplay(b.from))+'</div>' +
+          '<div class="timeline-main"><div class="t-subject">'+escapeHtml(b.subject)+'</div><div class="t-teacher">'+escapeHtml(b.teacher)+'</div></div>' +
+        '</div>';
+      }).join('');
+    }
+
+    document.getElementById('dash-upcoming').innerHTML = bookingListHTML(upcoming, {showActions:true, showDate:true});
+  }
+  function statCardHTML(ic, label, value){
+    return '<div class="card stat-card"><div class="stat-ic">'+ic+'</div><div class="stat-value">'+value+'</div><div class="stat-label">'+escapeHtml(label)+'</div></div>';
+  }
+
+  /* =========================================================
+     Jadual (calendar)
+  ========================================================= */
+  function populateFilterSelects(){
+    var subjectSel = document.getElementById('filter-subject');
+    subjectSel.innerHTML = '<option value="">Semua Subjek</option>' + SUBJECTS.map(function(s){ return '<option value="'+escapeHtml(s.name)+'">'+escapeHtml(s.name)+'</option>'; }).join('');
+    refreshTeacherFilterOptions();
+  }
+  function refreshTeacherFilterOptions(){
+    var teacherSel = document.getElementById('filter-teacher');
+    var current = teacherSel.value;
+    teacherSel.innerHTML = '<option value="">Semua Guru</option>' + allKnownTeachers().map(function(t){ return '<option value="'+escapeHtml(t)+'">'+escapeHtml(t)+'</option>'; }).join('');
+    if(current) teacherSel.value = current;
+  }
+
+  function updateCalLabel(){
+    var label = document.getElementById('cal-label');
+    if(calMode === 'day'){
+      label.textContent = DAY_LABELS_MY[JS_DAYS[calAnchor.getDay()]] + ', ' + calAnchor.getDate() + ' ' + MALAY_MONTHS[calAnchor.getMonth()] + ' ' + calAnchor.getFullYear();
+    } else if(calMode === 'week'){
+      var ws = startOfWeek(calAnchor), we = addDays(ws,6);
+      label.textContent = ws.getDate()+' '+MALAY_MONTHS[ws.getMonth()].slice(0,3)+' – '+we.getDate()+' '+MALAY_MONTHS[we.getMonth()].slice(0,3)+' '+we.getFullYear();
+    } else {
+      label.textContent = MALAY_MONTHS[calAnchor.getMonth()] + ' ' + calAnchor.getFullYear();
+    }
+    document.getElementById('cal-date-picker').value = isoDate(calAnchor);
+  }
+
+  function renderJadual(){
+    populateFilterSelects();
+    document.getElementById('filter-search').value = filters.search;
+    document.getElementById('filter-subject').value = filters.subject;
+    document.getElementById('filter-teacher').value = filters.teacher;
+    document.querySelectorAll('.cal-mode-btn').forEach(function(btn){ btn.classList.toggle('active', btn.getAttribute('data-mode') === calMode); });
+    updateCalLabel();
+    var body = document.getElementById('jadual-body');
+    var filtered = applyFilters(bookings);
+    if(calMode === 'day') body.innerHTML = renderDayViewHTML(filtered, calAnchor);
+    else if(calMode === 'week') body.innerHTML = renderWeekViewHTML(filtered, calAnchor);
+    else body.innerHTML = renderMonthViewHTML(filtered, calAnchor);
+    if(calMode === 'week') positionWeekEvents(filtered, calAnchor);
+  }
+
+  function renderDayViewHTML(list, date){
+    var iso = isoDate(date);
+    var dayBookings = list.filter(function(b){ return b.date === iso; }).sort(function(a,b){ return a.from.localeCompare(b.from); });
+    return '<div class="day-card">' +
+      '<div class="day-head">'+DAY_LABELS_MY[JS_DAYS[date.getDay()]]+' ('+escapeHtml(formatDateDisplay(iso))+')</div>' +
+      '<div class="day-body">' + bookingListHTML(dayBookings, {showActions:true}) + '</div>' +
+    '</div>';
+  }
+
+  function renderWeekViewHTML(list, anchor){
+    var ws = startOfWeek(anchor);
+    var today = isoDate(new Date());
+    var head = '<div class="week-head-cell"></div>';
+    for(var i=0;i<7;i++){
+      var d = addDays(ws,i);
+      var isToday = isoDate(d) === today;
+      head += '<div class="week-head-cell'+(isToday?' is-today':'')+'">'+DAY_LABELS_MY[JS_DAYS[d.getDay()]].slice(0,3)+'<span class="wd-date">'+d.getDate()+'</span></div>';
+    }
+    var hours = [];
+    for(var h=WEEK_START_HOUR; h<WEEK_END_HOUR; h++){ hours.push(h); }
+    var timeCol = hours.map(function(h){ return '<div class="week-time-cell">'+pad2(h)+':00</div>'; }).join('');
+    var lineCols = '';
+    for(var c=0;c<7;c++){
+      lineCols += '<div class="week-lines-col">' + hours.map(function(){ return '<div class="week-hour-line"></div>'; }).join('') + '</div>';
+    }
+    var overlayCols = '';
+    for(var c2=0;c2<7;c2++){ overlayCols += '<div class="week-day-col" id="week-day-col-'+c2+'"></div>'; }
+    return '<div class="week-view">' +
+      '<div class="week-head-row">'+head+'</div>' +
+      '<div class="week-scroll"><div class="week-body" id="week-body" style="height:'+(hours.length*ROW_HEIGHT)+'px;">' +
+        '<div class="week-time-col">'+timeCol+'</div>' + lineCols +
+        '<div class="week-events-overlay" id="week-events-overlay">'+overlayCols+'</div>' +
+      '</div></div>' +
+    '</div>';
+  }
+
+  function positionWeekEvents(list, anchor){
+    var ws = startOfWeek(anchor);
+    var rangeStart = WEEK_START_HOUR*60, rangeEnd = WEEK_END_HOUR*60;
+    for(var i=0;i<7;i++){
+      var d = addDays(ws,i);
+      var iso = isoDate(d);
+      var col = document.getElementById('week-day-col-'+i);
+      if(!col) continue;
+      var dayBookings = list.filter(function(b){ return b.date === iso; });
+      col.innerHTML = dayBookings.map(function(b){
+        var color = SUBJECT_COLOR[b.subject] || '#7C6CE8';
+        var startM = Math.max(rangeStart, toMinutes(b.from));
+        var endM = Math.min(rangeEnd, Math.max(toMinutes(b.to), toMinutes(b.from)+20));
+        var top = (startM - rangeStart) * (ROW_HEIGHT/60);
+        var height = Math.max(18, (endM - startM) * (ROW_HEIGHT/60) - 2);
+        return '<div class="week-event" data-edit-id="'+escapeHtml(b.id)+'" style="--accent-c:'+color+';top:'+top+'px;height:'+height+'px;">' +
+          '<strong>'+escapeHtml(b.subject)+'</strong><span>'+escapeHtml(b.teacher)+'</span>' +
+        '</div>';
+      }).join('');
+    }
+  }
+
+  function renderMonthViewHTML(list, anchor){
+    var monthStart = startOfMonth(anchor);
+    var gridStart = startOfWeek(monthStart);
+    var today = isoDate(new Date());
+    var dowRow = WEEK_ORDER.map(function(d){ return '<div class="month-dow">'+DAY_LABELS_MY[d].slice(0,3)+'</div>'; }).join('');
+    var cells = '';
+    var byDate = {};
+    list.forEach(function(b){ (byDate[b.date] = byDate[b.date]||[]).push(b); });
+    for(var i=0;i<42;i++){
+      var d = addDays(gridStart, i);
+      var iso = isoDate(d);
+      var outside = d.getMonth() !== anchor.getMonth();
+      var items = byDate[iso] || [];
+      var dots = items.slice(0,4).map(function(b){ return '<span class="month-dot" style="background:'+(SUBJECT_COLOR[b.subject]||'#7C6CE8')+'"></span>'; }).join('');
+      var more = items.length > 4 ? '<span class="month-more">+'+(items.length-4)+'</span>' : '';
+      cells += '<div class="month-cell'+(outside?' outside':'')+(iso===today?' is-today':'')+'" data-goto-date="'+iso+'">' +
+        '<div class="month-daynum">'+d.getDate()+'</div>' +
+        '<div class="month-dot-row">'+dots+more+'</div>' +
+      '</div>';
+      if(items.length > 42) break; // safety
+    }
+    return '<div class="month-grid">' + dowRow + cells + '</div>';
+  }
+
+  document.addEventListener('click', function(e){
+    var cell = e.target.closest ? e.target.closest('[data-goto-date]') : null;
+    if(cell){
+      calAnchor = parseISO(cell.getAttribute('data-goto-date'));
+      calMode = 'day';
+      renderJadual();
+    }
+  });
+
+  document.getElementById('cal-prev').addEventListener('click', function(){ shiftCal(-1); });
+  document.getElementById('cal-next').addEventListener('click', function(){ shiftCal(1); });
+  document.getElementById('cal-today').addEventListener('click', function(){ calAnchor = new Date(); renderJadual(); });
+  document.getElementById('cal-date-picker').addEventListener('change', function(e){ if(e.target.value){ calAnchor = parseISO(e.target.value); renderJadual(); } });
+  function shiftCal(dir){
+    if(calMode === 'day') calAnchor = addDays(calAnchor, dir);
+    else if(calMode === 'week') calAnchor = addDays(calAnchor, dir*7);
+    else calAnchor = new Date(calAnchor.getFullYear(), calAnchor.getMonth()+dir, 1);
+    renderJadual();
+  }
+  document.querySelectorAll('.cal-mode-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){ calMode = btn.getAttribute('data-mode'); renderJadual(); });
+  });
+  document.getElementById('filter-search').addEventListener('input', function(e){ filters.search = e.target.value; renderJadual(); });
+  document.getElementById('filter-subject').addEventListener('change', function(e){ filters.subject = e.target.value; renderJadual(); });
+  document.getElementById('filter-teacher').addEventListener('change', function(e){ filters.teacher = e.target.value; renderJadual(); });
+
+  /* =========================================================
+     Tempah Slot (form)
+  ========================================================= */
+  var fSubject = document.getElementById('f-subject');
+  var fTeacher = document.getElementById('f-teacher');
+  var fTeacherHelp = document.getElementById('f-teacher-help');
+  var fManualWrap = document.getElementById('f-manual-wrap');
+  var fManualName = document.getElementById('f-manual-name');
+  var fDate = document.getElementById('f-date');
+  var fDay = document.getElementById('f-day');
+  var fFrom = document.getElementById('f-from');
+  var fTo = document.getElementById('f-to');
+  var fNotes = document.getElementById('f-notes');
+  var fSubmitBtn = document.getElementById('f-submit-btn');
+  var fErrorEl = document.getElementById('tempah-error');
+  var fClashBanner = document.getElementById('tempah-clash-banner');
+  var tempahForm = document.getElementById('tempah-form');
+  var tempahTitle = document.getElementById('tempah-title');
+
+  function populateSubjectSelect(){
+    fSubject.innerHTML = '<option value="" disabled selected>Pilih subjek</option>' +
+      SUBJECTS.map(function(s){ return '<option value="'+escapeHtml(s.name)+'">'+escapeHtml(s.icon)+' '+escapeHtml(s.name)+'</option>'; }).join('');
+  }
+
+  function populateTeacherSelect(subject, selectedValue){
+    var primary = teacherConfig.subjectTeachers[subject] || '—';
+    var workshop = teacherConfig.workshopTeachers[subject] || [];
+    var html = '<optgroup label="👨\u200d🏫 Guru Subjek Ini"><option value="primary">'+escapeHtml(primary)+'</option></optgroup>';
+    if(workshop.length){
+      html += '<optgroup label="🔧 Bengkel">' + workshop.map(function(n){ return '<option value="workshop:'+escapeHtml(n)+'">'+escapeHtml(n)+'</option>'; }).join('') + '</optgroup>';
+    }
+    html += '<optgroup label="👤 Guru Lain"><option value="manual">Guru lain...</option></optgroup>';
+    fTeacher.innerHTML = html;
+    fTeacher.value = selectedValue || 'primary';
+    updateTeacherHelp();
+  }
+
+  function updateTeacherHelp(){
+    var val = fTeacher.value;
+    if(val === 'manual'){
+      fManualWrap.hidden = false;
+      fTeacherHelp.textContent = 'Guru telah ditukar secara manual.';
+    } else if(val === 'primary'){
+      fManualWrap.hidden = true;
+      fTeacherHelp.textContent = 'Guru utama untuk subjek ini dipilih secara automatik.';
+    } else {
+      fManualWrap.hidden = true;
+      fTeacherHelp.textContent = 'Guru bengkel dipilih secara manual.';
+    }
+  }
+
+  fSubject.addEventListener('change', function(){
+    manualOverride = false;
+    populateTeacherSelect(fSubject.value, 'primary');
+    checkLiveClash();
+  });
+  fTeacher.addEventListener('change', function(){
+    manualOverride = (fTeacher.value !== 'primary');
+    updateTeacherHelp();
+  });
+
+  fDate.addEventListener('change', function(){
+    var dayName = fDate.value ? dayNameFromISO(fDate.value) : '';
+    fDay.innerHTML = dayName ? '<option value="'+dayName+'">'+DAY_LABELS_MY[dayName]+'</option>' : '<option value="">—</option>';
+    if(dayName) fDay.value = dayName;
+    checkLiveClash();
+  });
+  fFrom.addEventListener('change', checkLiveClash);
+  fTo.addEventListener('change', checkLiveClash);
+
+  function resolveTeacherName(){
+    var val = fTeacher.value;
+    if(val === 'primary') return teacherConfig.subjectTeachers[fSubject.value] || '';
+    if(val === 'manual') return fManualName.value.trim();
+    if(val && val.indexOf('workshop:') === 0) return val.slice(9);
+    return '';
+  }
+
+  function findClashes(subject, date, from, to, excludeId){
+    return bookings.filter(function(b){
+      if(excludeId && b.id === excludeId) return false;
+      return b.date === date && timesOverlap(b.from,b.to,from,to) && !isExemptClash(b.subject, subject);
+    });
+  }
+
+  function checkLiveClash(){
+    var subject = fSubject.value, date = fDate.value, from = fFrom.value, to = fTo.value;
+    if(!subject || !date || !from || !to || toMinutes(from) >= toMinutes(to)){
+      fClashBanner.hidden = true;
+      return;
+    }
+    var clashes = findClashes(subject, date, from, to, editingBookingId);
+    if(clashes.length){
+      var c = clashes[0];
+      fClashBanner.hidden = false;
+      fClashBanner.innerHTML = '⚠️ <strong>Slot bertindih</strong> — sudah ditempah: '+escapeHtml(c.subject)+' — '+escapeHtml(c.teacher)+', '+escapeHtml(formatTimeDisplay(c.from))+'–'+escapeHtml(formatTimeDisplay(c.to));
+    } else {
+      fClashBanner.hidden = true;
+    }
+  }
+
+  function resetTempahForm(){
+    editingBookingId = null;
+    manualOverride = false;
+    tempahTitle.textContent = '➕ Tempah Slot';
+    fSubmitBtn.textContent = 'Simpan Tempahan';
+    tempahForm.reset();
+    fErrorEl.hidden = true;
+    fClashBanner.hidden = true;
+    fManualWrap.hidden = true;
+    populateSubjectSelect();
+    fSubject.selectedIndex = 0;
+    fTeacher.innerHTML = '';
+    fDay.innerHTML = '<option value="">Pilih tarikh dahulu</option>';
+  }
+
+  function openEditBooking(id){
+    var b = findBooking(id);
+    if(!b) return;
+    editingBookingId = id;
+    navigateTo('tempah');
+    tempahTitle.textContent = '✏️ Edit Tempahan';
+    fSubmitBtn.textContent = 'Kemaskini Tempahan';
+    populateSubjectSelect();
+    fSubject.value = b.subject;
+    var primary = teacherConfig.subjectTeachers[b.subject];
+    var selVal = 'manual';
+    if(b.teacher === primary) selVal = 'primary';
+    else if((teacherConfig.workshopTeachers[b.subject]||[]).indexOf(b.teacher) !== -1) selVal = 'workshop:'+b.teacher;
+    populateTeacherSelect(b.subject, selVal);
+    if(selVal === 'manual'){ fManualWrap.hidden = false; fManualName.value = b.teacher; }
+    fDate.value = b.date;
+    var dayName = dayNameFromISO(b.date);
+    fDay.innerHTML = '<option value="'+dayName+'">'+DAY_LABELS_MY[dayName]+'</option>';
+    fDay.value = dayName;
+    fFrom.value = b.from;
+    fTo.value = b.to;
+    fNotes.value = b.notes || '';
+    fErrorEl.hidden = true;
+    checkLiveClash();
+  }
+
+  tempahForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    fErrorEl.hidden = true;
+    var subject = fSubject.value;
+    var teacher = resolveTeacherName();
+    var date = fDate.value;
+    var day = fDay.value || dayNameFromISO(date);
+    var from = fFrom.value;
+    var to = fTo.value;
+    var notes = fNotes.value.trim();
+
+    if(!subject || !teacher || !date || !from || !to){
+      fErrorEl.textContent = 'Sila lengkapkan semua ruangan.';
+      fErrorEl.hidden = false;
+      return;
+    }
+    if(toMinutes(from) >= toMinutes(to)){
+      fErrorEl.textContent = 'Masa tamat mestilah selepas masa mula.';
+      fErrorEl.hidden = false;
+      return;
+    }
+    var clashes = findClashes(subject, date, from, to, editingBookingId);
+    if(clashes.length){
+      var c = clashes[0];
+      document.getElementById('clash-message').innerHTML = 'Slot ini telah ditempah:<br><strong>'+escapeHtml(c.subject)+'</strong> — '+escapeHtml(c.teacher)+'<br>'+escapeHtml(formatTimeDisplay(c.from))+' – '+escapeHtml(formatTimeDisplay(c.to))+'<br><br>Teruskan simpan tempahan ini juga?';
+      document.getElementById('clash-overlay').hidden = false;
+      pendingSubmit = {subject:subject, teacher:teacher, date:date, day:day, from:from, to:to, notes:notes};
+      return;
+    }
+    submitTempahan({subject:subject, teacher:teacher, date:date, day:day, from:from, to:to, notes:notes});
+  });
+
+  var pendingSubmit = null;
+  document.getElementById('clash-cancel-btn').addEventListener('click', function(){ pendingSubmit = null; document.getElementById('clash-overlay').hidden = true; });
+  document.getElementById('clash-confirm-btn').addEventListener('click', function(){
+    document.getElementById('clash-overlay').hidden = true;
+    if(pendingSubmit){ submitTempahan(pendingSubmit); pendingSubmit = null; }
+  });
+  document.getElementById('clash-overlay').addEventListener('click', function(e){ if(e.target.id === 'clash-overlay'){ pendingSubmit=null; e.currentTarget.hidden = true; } });
+
+  async function submitTempahan(fields){
+    fSubmitBtn.disabled = true;
+    fSubmitBtn.textContent = 'Menyimpan…';
+    var isEdit = !!editingBookingId;
+    var result;
+    if(isEdit){
+      var id = editingBookingId;
+      result = await persistBookings(function(base){
+        return base.map(function(b){ return b.id === id ? Object.assign({}, b, fields) : b; });
+      });
+    } else {
+      var newBooking = Object.assign({id:genId(), createdAt:Date.now()}, fields);
+      result = await persistBookings(function(base){ return base.concat([newBooking]); });
+    }
+    fSubmitBtn.disabled = false;
+    fSubmitBtn.textContent = isEdit ? 'Kemaskini Tempahan' : 'Simpan Tempahan';
+    if(result.ok){
+      toast(isEdit ? 'Tempahan dikemaskini' : 'Tempahan berjaya!', isEdit ? 'info' : 'success');
+      navigateTo('jadual');
+    } else {
+      fErrorEl.textContent = result.message;
+      fErrorEl.hidden = false;
+    }
+  }
+
+  /* =========================================================
+     Cancel (delete) booking
+  ========================================================= */
+  var cancelOverlay = document.getElementById('cancel-overlay');
+  var cancelMessageEl = document.getElementById('cancel-message');
+  var cancelErrorEl = document.getElementById('cancel-error');
+  var cancelYesBtn = document.getElementById('cancel-yes-btn');
+  var pendingDeleteId = null;
+
+  function openCancelSheet(b){
+    pendingDeleteId = b.id;
+    cancelErrorEl.hidden = true;
+    cancelMessageEl.innerHTML = escapeHtml(b.subject)+' ('+escapeHtml(b.teacher)+'), '+escapeHtml(formatDateDisplay(b.date))+', '+escapeHtml(formatTimeDisplay(b.from))+'–'+escapeHtml(formatTimeDisplay(b.to))+'. Tindakan ini tidak boleh diundur.';
+    cancelOverlay.hidden = false;
+  }
+  document.getElementById('cancel-no-btn').addEventListener('click', function(){ cancelOverlay.hidden = true; pendingDeleteId = null; });
+  cancelOverlay.addEventListener('click', function(e){ if(e.target === cancelOverlay){ cancelOverlay.hidden = true; pendingDeleteId = null; } });
+  cancelYesBtn.addEventListener('click', async function(){
+    if(!pendingDeleteId) return;
+    var id = pendingDeleteId;
+    cancelYesBtn.disabled = true;
+    cancelYesBtn.textContent = 'Membatalkan…';
+    var result = await persistBookings(function(base){ return base.filter(function(b){ return b.id !== id; }); });
+    cancelYesBtn.disabled = false;
+    cancelYesBtn.textContent = 'Ya, Batalkan';
+    if(result.ok){
+      cancelOverlay.hidden = true;
+      pendingDeleteId = null;
+      toast('Tempahan dibatalkan', 'warning');
+    } else {
+      cancelErrorEl.textContent = result.message;
+      cancelErrorEl.hidden = false;
+    }
+  });
+
+  /* =========================================================
+     Guru
+  ========================================================= */
+  var guruSearchQuery = '';
+  document.getElementById('guru-search').addEventListener('input', function(e){ guruSearchQuery = e.target.value.toLowerCase(); renderGuru(); });
+  document.getElementById('guru-back-btn').addEventListener('click', function(){ guruDetailName = null; renderGuru(); });
+
+  function renderGuru(){
+    var listWrap = document.getElementById('guru-list-wrap');
+    var detailWrap = document.getElementById('guru-detail-wrap');
+    if(guruDetailName){
+      listWrap.hidden = true; detailWrap.hidden = false;
+      renderGuruDetail(guruDetailName);
+      return;
+    }
+    listWrap.hidden = false; detailWrap.hidden = true;
+    var teachers = allKnownTeachers().filter(function(t){ return !guruSearchQuery || t.toLowerCase().indexOf(guruSearchQuery) !== -1; });
+    var grid = document.getElementById('guru-grid');
+    if(teachers.length === 0){
+      grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="es-ic">👨\u200d🏫</div><div class="display">Tiada guru dijumpai</div></div>';
+      return;
+    }
+    grid.innerHTML = teachers.map(function(t){
+      var tBookings = bookings.filter(function(b){ return b.teacher === t; });
+      var mainSubject = mostCommonSubjectFor(t);
+      return '<div class="card entity-card" data-guru="'+escapeHtml(t)+'">' +
+        '<div class="e-ic">👨\u200d🏫</div>' +
+        '<div class="e-name">'+escapeHtml(t)+'</div>' +
+        '<div class="e-sub">'+escapeHtml(mainSubject || '—')+'</div>' +
+        '<div class="e-count">'+tBookings.length+' tempahan</div>' +
+      '</div>';
+    }).join('');
+  }
+  function mostCommonSubjectFor(teacher){
+    var counts = {};
+    bookings.forEach(function(b){ if(b.teacher===teacher) counts[b.subject]=(counts[b.subject]||0)+1; });
+    var best=null,bestN=0;
+    Object.keys(counts).forEach(function(s){ if(counts[s]>bestN){bestN=counts[s];best=s;} });
+    if(!best){
+      Object.keys(teacherConfig.subjectTeachers).forEach(function(s){ if(teacherConfig.subjectTeachers[s]===teacher) best=s; });
+    }
+    return best;
+  }
+  document.getElementById('guru-grid').addEventListener('click', function(e){
+    var card = e.target.closest ? e.target.closest('[data-guru]') : null;
+    if(card){ guruDetailName = card.getAttribute('data-guru'); renderGuru(); }
+  });
+  function renderGuruDetail(name){
+    var now = new Date();
+    var list = sortedBookings().filter(function(b){ return b.teacher === name; });
+    var upcoming = list.filter(function(b){ return getClassStatus(b, now) !== 'ended'; });
+    var history = list.filter(function(b){ return getClassStatus(b, now) === 'ended'; }).reverse();
+    document.getElementById('guru-detail-content').innerHTML =
+      '<div class="page-head"><h1>👨\u200d🏫 '+escapeHtml(name)+'</h1><p>'+list.length+' jumlah tempahan</p></div>' +
+      '<div class="section-title"><h2>Kelas Akan Datang</h2></div>' +
+      bookingListHTML(upcoming, {showActions:true, showDate:true}) +
+      '<div class="section-title"><h2>Sejarah Tempahan</h2></div>' +
+      bookingListHTML(history, {showActions:true, showDate:true});
+  }
+
+  /* =========================================================
+     Subjek
+  ========================================================= */
+  document.getElementById('subjek-back-btn').addEventListener('click', function(){ subjekDetailName = null; renderSubjek(); });
+  function renderSubjek(){
+    var listWrap = document.getElementById('subjek-list-wrap');
+    var detailWrap = document.getElementById('subjek-detail-wrap');
+    if(subjekDetailName){
+      listWrap.hidden = true; detailWrap.hidden = false;
+      renderSubjekDetail(subjekDetailName);
+      return;
+    }
+    listWrap.hidden = false; detailWrap.hidden = true;
+    var grid = document.getElementById('subjek-grid');
+    grid.innerHTML = SUBJECTS.map(function(s){
+      var count = bookings.filter(function(b){ return b.subject === s.name; }).length;
+      return '<div class="card entity-card" data-subjek="'+escapeHtml(s.name)+'" style="border-top:3px solid '+s.color+'">' +
+        '<div class="e-ic">'+s.icon+'</div>' +
+        '<div class="e-name">'+escapeHtml(s.name)+'</div>' +
+        '<div class="e-sub">'+escapeHtml(teacherConfig.subjectTeachers[s.name]||'')+'</div>' +
+        '<div class="e-count">'+count+' tempahan</div>' +
+      '</div>';
+    }).join('');
+  }
+  document.getElementById('subjek-grid').addEventListener('click', function(e){
+    var card = e.target.closest ? e.target.closest('[data-subjek]') : null;
+    if(card){ subjekDetailName = card.getAttribute('data-subjek'); renderSubjek(); }
+  });
+  function renderSubjekDetail(name){
+    var list = sortedBookings().filter(function(b){ return b.subject === name; });
+    document.getElementById('subjek-detail-content').innerHTML =
+      '<div class="page-head"><h1>'+ (SUBJECT_ICON[name]||'') +' '+escapeHtml(name)+'</h1><p>'+list.length+' jumlah tempahan</p></div>' +
+      bookingListHTML(list, {showActions:true, showDate:true});
+  }
+
+  /* =========================================================
+     Statistik
+  ========================================================= */
+  function computeStats(){
+    var now = new Date();
+    var todayISO = isoDate(now);
+    var weekStart = isoDate(startOfWeek(now));
+    var monthStart = isoDate(startOfMonth(now));
+    var stats = { total:bookings.length, today:0, thisWeek:0, thisMonth:0, bySubject:{}, byDay:{}, byHour:{}, byTeacher:{} };
+    WEEK_ORDER.forEach(function(d){ stats.byDay[d] = 0; });
+    bookings.forEach(function(b){
+      if(b.date === todayISO) stats.today++;
+      if(b.date >= weekStart) stats.thisWeek++;
+      if(b.date >= monthStart) stats.thisMonth++;
+      stats.bySubject[b.subject] = (stats.bySubject[b.subject]||0)+1;
+      var dName = dayNameFromISO(b.date);
+      stats.byDay[dName] = (stats.byDay[dName]||0)+1;
+      var hour = pad2(parseInt(b.from.split(':')[0],10))+':00';
+      stats.byHour[hour] = (stats.byHour[hour]||0)+1;
+      stats.byTeacher[b.teacher] = (stats.byTeacher[b.teacher]||0)+1;
+    });
+    return stats;
+  }
+  function barChartHTML(dataObj, colorForKey){
+    var entries = Object.keys(dataObj).map(function(k){ return [k, dataObj[k]]; });
+    entries.sort(function(a,b){ return b[1]-a[1]; });
+    var max = entries.reduce(function(m,e){ return Math.max(m,e[1]); }, 0) || 1;
+    if(entries.length === 0) return '<div style="color:var(--ink-faint);font-size:13px;">Tiada data.</div>';
+    return entries.map(function(e){
+      var pct = Math.round((e[1]/max)*100);
+      var color = colorForKey ? (colorForKey(e[0]) || 'var(--accent)') : 'var(--accent)';
+      return '<div class="bar-row"><div class="bar-label" title="'+escapeHtml(e[0])+'">'+escapeHtml(e[0])+'</div>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:'+color+';"></div></div>' +
+        '<div class="bar-count">'+e[1]+'</div></div>';
+    }).join('');
+  }
+  function renderStatistik(){
+    var s = computeStats();
+    document.getElementById('stat-cards').innerHTML = [
+      statCardHTML('📚','Jumlah Tempahan', s.total),
+      statCardHTML('🗓️','Tempahan Bulan Ini', s.thisMonth),
+      statCardHTML('📆','Tempahan Minggu Ini', s.thisWeek),
+      statCardHTML('📅','Tempahan Hari Ini', s.today)
+    ].join('');
+    document.getElementById('chart-subject').innerHTML = barChartHTML(s.bySubject, function(k){ return SUBJECT_COLOR[k]; });
+    var byDayMalay = {};
+    WEEK_ORDER.forEach(function(d){ byDayMalay[DAY_LABELS_MY[d]] = s.byDay[d] || 0; });
+    document.getElementById('chart-day').innerHTML = barChartHTML(byDayMalay);
+    document.getElementById('chart-hour').innerHTML = barChartHTML(s.byHour);
+    document.getElementById('chart-teacher').innerHTML = barChartHTML(s.byTeacher);
+  }
+
+  /* =========================================================
+     Tetapan
+  ========================================================= */
+  function renderTetapan(){
+    document.getElementById('settings-teacher-list').innerHTML = SUBJECTS.map(function(s){
+      var teacher = teacherConfig.subjectTeachers[s.name] || '—';
+      return '<div class="settings-row">' +
+        '<div><div class="sr-subject">'+s.icon+' '+escapeHtml(s.name)+'</div><div class="sr-teacher">Guru utama: '+escapeHtml(teacher)+'</div></div>' +
+        '<button type="button" class="btn ghost sm" data-edit-subject="'+escapeHtml(s.name)+'">✏️ Edit</button>' +
+      '</div>';
+    }).join('');
+
+    var wsSel = document.getElementById('ws-subject');
+    wsSel.innerHTML = SUBJECTS.map(function(s){ return '<option value="'+escapeHtml(s.name)+'">'+escapeHtml(s.name)+'</option>'; }).join('');
+
+    var wsList = document.getElementById('settings-workshop-list');
+    var chips = [];
+    Object.keys(teacherConfig.workshopTeachers).forEach(function(subject){
+      (teacherConfig.workshopTeachers[subject]||[]).forEach(function(name){
+        chips.push('<span class="workshop-chip">'+escapeHtml(subject)+': '+escapeHtml(name)+
+          ' <button type="button" data-remove-ws-subject="'+escapeHtml(subject)+'" data-remove-ws-name="'+escapeHtml(name)+'">✕</button></span>');
+      });
+    });
+    wsList.innerHTML = chips.length ? chips.join('') : '<div style="color:var(--ink-faint);font-size:13px;">Belum ada guru bengkel ditambah.</div>';
+  }
+
+  document.getElementById('settings-teacher-list').addEventListener('click', function(e){
+    var btn = e.target.closest ? e.target.closest('[data-edit-subject]') : null;
+    if(!btn) return;
+    var subject = btn.getAttribute('data-edit-subject');
+    var current = teacherConfig.subjectTeachers[subject] || '';
+    var updated = window.prompt('Tukar guru utama untuk "'+subject+'":', current);
+    if(updated === null) return;
+    updated = updated.trim();
+    if(!updated){ toast('Nama guru tidak boleh kosong', 'error'); return; }
+    saveTeacherConfig(function(cfg){ cfg.subjectTeachers[subject] = updated; })
+      .then(function(res){
+        if(res.ok) toast('Guru utama '+subject+' dikemaskini kepada '+updated, 'success');
+        else toast(res.message, 'error');
+      });
+  });
+
+  document.getElementById('ws-add-btn').addEventListener('click', function(){
+    var subject = document.getElementById('ws-subject').value;
+    var name = document.getElementById('ws-name').value.trim();
+    if(!name){ toast('Sila masukkan nama guru bengkel', 'error'); return; }
+    saveTeacherConfig(function(cfg){
+      if(!cfg.workshopTeachers[subject]) cfg.workshopTeachers[subject] = [];
+      if(cfg.workshopTeachers[subject].indexOf(name) === -1) cfg.workshopTeachers[subject].push(name);
+    }).then(function(res){
+      if(res.ok){ toast('Guru bengkel ditambah', 'success'); document.getElementById('ws-name').value=''; }
+      else toast(res.message, 'error');
+    });
+  });
+
+  document.getElementById('settings-workshop-list').addEventListener('click', function(e){
+    var btn = e.target.closest ? e.target.closest('[data-remove-ws-name]') : null;
+    if(!btn) return;
+    var subject = btn.getAttribute('data-remove-ws-subject');
+    var name = btn.getAttribute('data-remove-ws-name');
+    saveTeacherConfig(function(cfg){
+      cfg.workshopTeachers[subject] = (cfg.workshopTeachers[subject]||[]).filter(function(n){ return n !== name; });
+    }).then(function(res){ if(res.ok) toast('Guru bengkel dibuang', 'info'); else toast(res.message,'error'); });
+  });
+
+  /* =========================================================
+     Persistence: bookings + config, backed by Firestore
+  ========================================================= */
+  async function persistBookings(computeFn){
+    var candidate = computeFn(bookings);
+    try{
+      await bookingsDocRef.set({ data: candidate, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      return {ok:true};
+    } catch(e){
+      return {ok:false, message:'Gagal menyimpan. Semak sambungan internet anda dan cuba lagi.'};
+    }
+  }
+  async function saveTeacherConfig(mutateFn){
+    var candidate = { subjectTeachers: Object.assign({}, teacherConfig.subjectTeachers), workshopTeachers: JSON.parse(JSON.stringify(teacherConfig.workshopTeachers)) };
+    mutateFn(candidate);
+    try{
+      await configDocRef.set(candidate);
+      return {ok:true};
+    } catch(e){
+      return {ok:false, message:'Gagal menyimpan tetapan. Semak sambungan internet anda.'};
+    }
+  }
+
+  /* =========================================================
+     Auto-expiry tick
+  ========================================================= */
+  var firstBookingsLoaded = false;
+  async function tick(){
+    var now = new Date();
+    var anyEnded = bookings.some(function(b){ return getClassStatus(b, now) === 'ended'; });
+    if(anyEnded){
+      await persistBookings(function(base){
+        var n = new Date();
+        return base.filter(function(b){ return getClassStatus(b, n) !== 'ended'; });
+      });
+    } else {
+      renderActiveView();
+    }
+  }
+
+  /* =========================================================
+     Init
+  ========================================================= */
+  function init(){
+    initTheme();
+    buildNav('sidebar-nav');
+    buildNav('drawer-nav');
+    buildBottomNav();
+    populateSubjectSelect();
+
+    document.getElementById('theme-toggle-desktop').addEventListener('click', toggleTheme);
+    document.getElementById('theme-toggle-mobile').addEventListener('click', toggleTheme);
+    document.getElementById('open-drawer-btn').addEventListener('click', function(){ document.getElementById('drawer-overlay').classList.add('open'); });
+    document.getElementById('drawer-overlay').addEventListener('click', function(e){ if(e.target.id === 'drawer-overlay') closeDrawer(); });
+
+    configDocRef.onSnapshot(function(snap){
+      if(snap.exists && snap.data()){
+        var d = snap.data();
+        teacherConfig.subjectTeachers = Object.assign({}, DEFAULT_SUBJECT_TEACHERS, d.subjectTeachers || {});
+        teacherConfig.workshopTeachers = d.workshopTeachers || {};
+      } else if(!configSeeded){
+        configSeeded = true;
+        configDocRef.set({ subjectTeachers: DEFAULT_SUBJECT_TEACHERS, workshopTeachers: {} }).catch(function(){});
+      }
+      renderActiveView();
+    }, function(){ /* ignore config stream errors, defaults stay in effect */ });
+
+    bookingsDocRef.onSnapshot(function(snap){
+      var data = (snap.exists && snap.data() && snap.data().data) || [];
+      bookings = Array.isArray(data) ? data : [];
+      renderActiveView();
+      if(!firstBookingsLoaded){
+        firstBookingsLoaded = true;
+        tick();
+        setInterval(tick, 60000);
+      }
+    }, function(){ toast('Tidak dapat sambung ke storan dikongsi.', 'error'); });
+
+    navigateTo('dashboard');
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
