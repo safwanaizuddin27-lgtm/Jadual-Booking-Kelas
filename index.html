@@ -503,12 +503,128 @@
   }
   @keyframes toast-in{from{transform:translateY(-8px);opacity:0;}to{transform:translateY(0);opacity:1;}}
 
+  /* ---------- Login ---------- */
+  .login-overlay{
+    position:fixed;inset:0;z-index:200;
+    background:rgba(15,10,30,0.6);
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;
+  }
+  .login-overlay[hidden]{display:none;}
+  .login-card{
+    background:var(--surface);border-radius:22px;
+    max-width:380px;width:100%;
+    padding:30px 26px 26px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+    text-align:center;
+  }
+  @media (prefers-reduced-motion:no-preference){ .login-card{animation:rise 0.25s ease-out;} }
+  .login-emoji{font-size:34px;margin-bottom:8px;}
+  .login-card h2{font-size:20px;font-weight:600;margin:0 0 4px;}
+  .login-card .sub{color:var(--ink-soft);font-size:13.5px;margin:0 0 20px;}
+  .login-step{display:none;}
+  .login-step.active{display:block;}
+  .login-role-label{text-align:left;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-soft);margin-bottom:10px;}
+  .role-btn{
+    width:100%;display:flex;align-items:center;gap:12px;
+    padding:16px 16px;border-radius:14px;border:1.5px solid var(--border);
+    background:var(--surface-2);color:var(--ink);
+    font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;text-align:left;
+  }
+  .role-btn .rb-ic{font-size:22px;}
+  .role-btn:hover{border-color:var(--accent);background:var(--info-bg);}
+  .login-back{
+    background:none;border:none;color:var(--ink-faint);font-size:13px;font-weight:600;
+    cursor:pointer;margin-bottom:10px;display:inline-flex;align-items:center;gap:4px;padding:0;
+  }
+  .login-step .field{text-align:left;}
+
+  /* ---------- Profile ---------- */
+  .profile-btn{
+    display:flex;align-items:center;gap:10px;width:100%;
+    padding:10px 12px;border-radius:12px;
+    background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+    color:#fff;cursor:pointer;margin-bottom:6px;text-align:left;
+  }
+  .profile-btn:hover{background:rgba(255,255,255,0.12);}
+  .profile-avatar{
+    width:30px;height:30px;border-radius:50%;flex:0 0 auto;
+    background:linear-gradient(135deg,#FF6B6B,#FFB703);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#241D46;
+  }
+  .profile-btn-text{display:flex;flex-direction:column;line-height:1.2;min-width:0;overflow:hidden;}
+  .profile-btn-text strong{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .profile-btn-text span{font-size:10.5px;color:#B6ADDD;}
+
+  /* ---------- Pengguna ---------- */
+  .user-section-title{font-size:14px;font-weight:700;margin:20px 0 10px;}
+  .user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:8px;}
+  .user-card{padding:13px 14px;}
+  .user-card .u-name{font-weight:700;font-size:14px;}
+  .user-card .u-type{color:var(--ink-soft);font-size:11.5px;margin-bottom:7px;}
+  .user-card .u-status{font-size:12px;font-weight:700;}
+  .user-card .u-status.active{color:var(--live-ink);}
+  .user-card .u-status.inactive{color:var(--ink-faint);}
+  .user-card .u-lastseen{font-size:11px;color:var(--ink-faint);margin-top:2px;}
+
+  /* ---------- Activity feed ---------- */
+  .activity-list{display:flex;flex-direction:column;gap:2px;}
+  .activity-item{
+    display:flex;gap:10px;align-items:flex-start;
+    padding:10px 4px;border-bottom:1px solid var(--border);
+  }
+  .activity-item:last-child{border-bottom:none;}
+  .activity-ic{font-size:15px;flex:0 0 auto;margin-top:1px;}
+  .activity-text{font-size:13px;line-height:1.4;}
+  .activity-time{font-size:11px;color:var(--ink-faint);margin-top:1px;}
+
+  .booking-meta{font-size:10.5px;color:var(--ink-faint);margin-top:2px;}
+
   .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+  .profile-btn[hidden],#profile-btn-mobile[hidden]{display:none !important;}
 </style>
 </head>
 <body>
 
 <div id="toast-container" aria-live="polite"></div>
+
+<!-- Login -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-card">
+    <div class="login-step active" id="login-step-role">
+      <div class="login-emoji">👋</div>
+      <h2>Selamat Datang</h2>
+      <p class="sub">Sila masukkan maklumat anda untuk meneruskan.</p>
+      <div class="login-role-label">Siapa anda?</div>
+      <button type="button" class="role-btn" data-role="Pelajar"><span class="rb-ic">👨‍🎓</span> Pelajar</button>
+      <button type="button" class="role-btn" data-role="Cikgu"><span class="rb-ic">👨‍🏫</span> Cikgu</button>
+    </div>
+
+    <div class="login-step" id="login-step-student">
+      <button type="button" class="login-back" data-back>← Kembali</button>
+      <div class="login-emoji">👨‍🎓</div>
+      <h2>Pelajar</h2>
+      <p class="sub">Pilih nama anda.</p>
+      <div class="field">
+        <label for="login-student-select">Nama anda</label>
+        <select id="login-student-select"></select>
+      </div>
+      <button type="button" class="btn primary block" id="login-student-submit">Masuk ke Jadual →</button>
+    </div>
+
+    <div class="login-step" id="login-step-teacher">
+      <button type="button" class="login-back" data-back>← Kembali</button>
+      <div class="login-emoji">👨‍🏫</div>
+      <h2>Cikgu</h2>
+      <p class="sub">Masukkan nama anda.</p>
+      <div class="field">
+        <label for="login-teacher-input">Nama anda</label>
+        <input type="text" id="login-teacher-input" placeholder="CONTOH: CIKGU AHMAD">
+      </div>
+      <button type="button" class="btn primary block" id="login-teacher-submit">Masuk ke Jadual →</button>
+    </div>
+  </div>
+</div>
 
 <div id="app">
   <!-- Desktop sidebar -->
@@ -519,6 +635,10 @@
     </div>
     <nav id="sidebar-nav"></nav>
     <div class="sidebar-footer">
+      <button type="button" class="profile-btn" id="profile-btn-desktop" hidden>
+        <div class="profile-avatar" id="profile-avatar-desktop"></div>
+        <div class="profile-btn-text"><strong id="profile-name-desktop"></strong><span id="profile-type-desktop"></span></div>
+      </button>
       <button type="button" class="theme-toggle" id="theme-toggle-desktop">
         <span class="ic" id="theme-ic-desktop">🌙</span><span id="theme-label-desktop">Dark Mode</span>
       </button>
@@ -531,6 +651,7 @@
       <button type="button" class="icon-btn" id="open-drawer-btn" aria-label="Menu">☰</button>
       <div class="tb-title">JADUAL KELAS</div>
       <div class="tb-actions">
+        <button type="button" class="icon-btn" id="profile-btn-mobile" aria-label="Profil" hidden>👤</button>
         <button type="button" class="icon-btn" id="theme-toggle-mobile" aria-label="Tukar tema">🌙</button>
       </div>
     </header>
@@ -550,6 +671,10 @@
           <button type="button" class="link" data-nav="jadual">Lihat Semua Jadual →</button>
         </div>
         <div id="dash-upcoming"></div>
+        <div class="section-title"><h2>👥 Pengguna</h2></div>
+        <div id="dash-users-summary"></div>
+        <div class="section-title"><h2>📜 Aktiviti Terkini</h2></div>
+        <div id="dash-activity"></div>
         <div style="margin-top:18px;">
           <button type="button" class="btn primary" data-nav="tempah">➕ Tempah Slot</button>
         </div>
@@ -666,6 +791,19 @@
         </div>
       </section>
 
+      <!-- Pengguna -->
+      <section class="view" id="view-pengguna">
+        <div class="page-head"><h1>👥 Pengguna</h1><p>Senarai pelajar dan cikgu yang menggunakan sistem ini.</p></div>
+        <div class="user-section-title">👨‍🎓 Pelajar</div>
+        <div class="user-grid" id="pengguna-student-grid"></div>
+        <div class="user-section-title">👨‍🏫 Cikgu</div>
+        <div class="user-grid" id="pengguna-teacher-grid"></div>
+        <div class="section-title"><h2>📜 Sejarah Login</h2></div>
+        <div class="card" style="padding:6px 16px;">
+          <div class="activity-list" id="pengguna-login-history"></div>
+        </div>
+      </section>
+
       <!-- Statistik -->
       <section class="view" id="view-statistik">
         <div class="page-head"><h1>📊 Statistik Jadual</h1><p>Ringkasan data tempahan sebenar.</p></div>
@@ -742,6 +880,21 @@
   </div>
 </div>
 
+<!-- Profile -->
+<div class="overlay" id="profile-overlay" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="profile-name">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+      <div class="profile-avatar" style="width:44px;height:44px;font-size:16px;" id="profile-avatar-big"></div>
+      <div>
+        <h2 id="profile-name" style="margin:0;"></h2>
+        <div style="color:var(--ink-soft);font-size:12.5px;" id="profile-type"></div>
+      </div>
+    </div>
+    <p class="sub" id="profile-last-login"></p>
+    <button type="button" class="btn danger block" id="logout-btn">🚪 Log Keluar</button>
+  </div>
+</div>
+
 <script>
 (function(){
   "use strict";
@@ -761,6 +914,9 @@
   var db = firebase.firestore();
   var bookingsDocRef = db.collection('jadualKelas').doc('bookings');
   var configDocRef = db.collection('jadualKelas').doc('config');
+  var metaDocRef = db.collection('jadualKelas').doc('meta');
+  var usersColRef = metaDocRef.collection('users');
+  var activityColRef = metaDocRef.collection('activity');
 
   /* =========================================================
      Static data
@@ -793,6 +949,9 @@
     "Kimia": "Cikgu Azurah"
   };
 
+  var STUDENT_NAMES = ["ADRIN","ALEEYSHA","DEA","HUSNA","IVY","KAETLYNN","KHAERA","AKIM","YASIN","SAFWAN","NATHANEIL","HAZARINNA","OCFREATY"];
+  var ACTIVITY_ICONS = {LOGIN:'🟢', LOGOUT:'🚪', CREATE_BOOKING:'➕', UPDATE_BOOKING:'✏️', DELETE_BOOKING:'🗑️', UPDATE_TEACHER:'⚙️'};
+
   var EXEMPT_PAIRS = [["Pendidikan Islam","Pendidikan Moral"]];
 
   var JS_DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -822,6 +981,11 @@
   var subjekDetailName = null;
   var configSeeded = false;
   var firstBookingsSnapshot = false;
+  var currentUser = null; // {name, type}
+  var usersCache = {}; // name -> {type, lastSeen, lastLoginAt, firstLoginAt, loginCount}
+  var activityCache = []; // most recent activity entries, newest first
+  var lastSeenWriteAt = 0;
+  var SESSION_KEY = 'jadual-session';
 
   /* =========================================================
      Utilities
@@ -857,6 +1021,32 @@
   }
   function genId(){ if(window.crypto && crypto.randomUUID) return crypto.randomUUID(); return 'b-'+Date.now()+'-'+Math.random().toString(16).slice(2); }
   function findBooking(id){ for(var i=0;i<bookings.length;i++){ if(bookings[i].id===id) return bookings[i]; } return null; }
+  function formatFullDateTime(d){
+    if(!d) return '';
+    var h=d.getHours(), m=d.getMinutes();
+    var ampm = h>=12 ? 'PM' : 'AM';
+    var h12 = h%12; if(h12===0) h12=12;
+    return d.getDate()+' '+MALAY_MONTHS[d.getMonth()]+' '+d.getFullYear()+', '+h12+':'+pad2(m)+' '+ampm;
+  }
+  function humanizeLastSeen(date){
+    if(!date) return 'Belum pernah login';
+    var diffMin = Math.floor((new Date()-date)/60000);
+    if(diffMin < 2) return '🟢 Aktif sekarang';
+    if(diffMin < 60) return 'Terakhir dilihat: '+diffMin+' minit lalu';
+    var diffHr = Math.floor(diffMin/60);
+    if(diffHr < 24) return 'Terakhir dilihat: '+diffHr+' jam lalu';
+    return 'Terakhir dilihat: '+formatFullDateTime(date);
+  }
+  function timeAgoShort(date){
+    if(!date) return '';
+    var diffMin = Math.floor((new Date()-date)/60000);
+    if(diffMin < 1) return 'baru sahaja';
+    if(diffMin < 60) return diffMin+' minit lalu';
+    var diffHr = Math.floor(diffMin/60);
+    if(diffHr < 24) return diffHr+' jam lalu';
+    return Math.floor(diffHr/24)+' hari lalu';
+  }
+  function isRecentlyActive(date){ return !!date && (new Date()-date) < 5*60*1000; }
 
   function allKnownTeachers(){
     var set = {};
@@ -920,6 +1110,171 @@
   }
 
   /* =========================================================
+     Login / Session / Activity Tracking
+  ========================================================= */
+  function updateProfileUI(){
+    var hasUser = !!currentUser;
+    ['profile-btn-desktop','profile-btn-mobile'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.hidden = !hasUser;
+    });
+    if(!hasUser) return;
+    var initial = (currentUser.name || '?').trim().charAt(0).toUpperCase();
+    var avEl = document.getElementById('profile-avatar-desktop');
+    if(avEl) avEl.textContent = initial;
+    var nameEl = document.getElementById('profile-name-desktop');
+    if(nameEl) nameEl.textContent = currentUser.name;
+    var typeEl = document.getElementById('profile-type-desktop');
+    if(typeEl) typeEl.textContent = currentUser.type === 'Pelajar' ? '👨‍🎓 Pelajar' : '👨‍🏫 Cikgu';
+  }
+
+  function openProfileOverlay(){
+    if(!currentUser) return;
+    var initial = (currentUser.name || '?').trim().charAt(0).toUpperCase();
+    document.getElementById('profile-avatar-big').textContent = initial;
+    document.getElementById('profile-name').textContent = currentUser.name;
+    document.getElementById('profile-type').textContent = currentUser.type === 'Pelajar' ? '👨‍🎓 Pelajar' : '👨‍🏫 Cikgu';
+    var rec = usersCache[currentUser.name];
+    var loginLabel = 'Log masuk terkini: —';
+    if(rec && rec.lastLoginAt) loginLabel = 'Log masuk terkini: ' + formatFullDateTime(rec.lastLoginAt);
+    document.getElementById('profile-last-login').textContent = loginLabel;
+    document.getElementById('profile-overlay').hidden = false;
+  }
+  function closeProfileOverlay(){ document.getElementById('profile-overlay').hidden = true; }
+
+  async function logActivity(action, opts){
+    opts = opts || {};
+    if(!currentUser) return;
+    try{
+      await activityColRef.add({
+        userName: currentUser.name,
+        userType: currentUser.type,
+        action: action,
+        targetType: opts.targetType || null,
+        targetId: opts.targetId || null,
+        description: opts.description || '',
+        clientTime: Date.now(),
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }catch(e){ /* activity logging is best-effort; ignore failures */ }
+  }
+
+  async function touchLastSeen(){
+    if(!currentUser) return;
+    var now = Date.now();
+    if(lastSeenWriteAt && (now - lastSeenWriteAt) < 20000) return; // throttle: at most every 20s
+    lastSeenWriteAt = now;
+    try{
+      await usersColRef.doc(currentUser.name).set({
+        name: currentUser.name,
+        type: currentUser.type,
+        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+      }, {merge:true});
+    }catch(e){ /* ignore */ }
+  }
+
+  function saveSessionLocal(){
+    try{ localStorage.setItem(SESSION_KEY, JSON.stringify({name:currentUser.name, type:currentUser.type})); }catch(e){}
+  }
+  function clearSessionLocal(){
+    try{ localStorage.removeItem(SESSION_KEY); }catch(e){}
+  }
+
+  async function completeLogin(name, type){
+    name = (name || '').trim().toUpperCase();
+    if(!name) return;
+    currentUser = {name:name, type:type};
+    saveSessionLocal();
+    document.getElementById('login-overlay').hidden = true;
+    updateProfileUI();
+    var isFirst = !usersCache[name] || !usersCache[name].lastLoginAt;
+    try{
+      await usersColRef.doc(name).set({
+        name: name,
+        type: type,
+        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+        lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
+        firstLoginAt: isFirst ? firebase.firestore.FieldValue.serverTimestamp() : (usersCache[name] && usersCache[name].firstLoginAt) || firebase.firestore.FieldValue.serverTimestamp(),
+        loginCount: firebase.firestore.FieldValue.increment(1)
+      }, {merge:true});
+    }catch(e){ /* ignore */ }
+    logActivity('LOGIN', {description: name + ' log masuk sebagai ' + type});
+    toast('Selamat datang, ' + name + '!', 'success');
+    navigateTo(currentView || 'dashboard');
+  }
+
+  function restoreSession(){
+    var raw = null;
+    try{ raw = localStorage.getItem(SESSION_KEY); }catch(e){}
+    if(raw){
+      try{
+        var parsed = JSON.parse(raw);
+        if(parsed && parsed.name && parsed.type){
+          currentUser = parsed;
+          document.getElementById('login-overlay').hidden = true;
+          updateProfileUI();
+          touchLastSeen();
+          return;
+        }
+      }catch(e){}
+    }
+    document.getElementById('login-overlay').hidden = false;
+    showLoginStep('login-step-role');
+  }
+
+  function logout(){
+    if(currentUser){ logActivity('LOGOUT', {description: currentUser.name + ' log keluar'}); }
+    currentUser = null;
+    clearSessionLocal();
+    closeProfileOverlay();
+    updateProfileUI();
+    document.getElementById('login-overlay').hidden = false;
+    showLoginStep('login-step-role');
+  }
+
+  function showLoginStep(stepId){
+    document.querySelectorAll('.login-step').forEach(function(s){ s.classList.toggle('active', s.id === stepId); });
+  }
+
+  function populateStudentLoginSelect(){
+    var sel = document.getElementById('login-student-select');
+    sel.innerHTML = '<option value="">Pilih nama anda…</option>' + STUDENT_NAMES.map(function(n){
+      return '<option value="'+escapeHtml(n)+'">'+escapeHtml(n)+'</option>';
+    }).join('');
+  }
+  populateStudentLoginSelect();
+
+  document.querySelectorAll('.role-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var role = btn.getAttribute('data-role');
+      if(role === 'Pelajar'){ showLoginStep('login-step-student'); }
+      else { showLoginStep('login-step-teacher'); }
+    });
+  });
+  document.querySelectorAll('[data-back]').forEach(function(btn){
+    btn.addEventListener('click', function(){ showLoginStep('login-step-role'); });
+  });
+  document.getElementById('login-teacher-input').addEventListener('input', function(e){
+    var pos = e.target.selectionStart;
+    e.target.value = e.target.value.toUpperCase();
+    try{ e.target.setSelectionRange(pos, pos); }catch(err){}
+  });
+  document.getElementById('login-student-submit').addEventListener('click', function(){
+    var val = document.getElementById('login-student-select').value;
+    if(!val){ toast('Sila pilih nama anda', 'error'); return; }
+    completeLogin(val, 'Pelajar');
+  });
+  document.getElementById('login-teacher-submit').addEventListener('click', function(){
+    var val = document.getElementById('login-teacher-input').value.trim();
+    if(!val){ toast('Sila masukkan nama guru', 'error'); return; }
+    completeLogin(val, 'Cikgu');
+  });
+  document.getElementById('profile-btn-desktop').addEventListener('click', openProfileOverlay);
+  document.getElementById('profile-btn-mobile').addEventListener('click', openProfileOverlay);
+  document.getElementById('profile-overlay').addEventListener('click', function(e){ if(e.target.id === 'profile-overlay') closeProfileOverlay(); });
+  document.getElementById('logout-btn').addEventListener('click', logout);
+
+  /* =========================================================
      Navigation
   ========================================================= */
   var NAV_ITEMS = [
@@ -928,6 +1283,7 @@
     {id:'tempah', label:'Tempah Slot', ic:'➕'},
     {id:'guru', label:'Guru', ic:'👨‍🏫'},
     {id:'subjek', label:'Subjek', ic:'📚'},
+    {id:'pengguna', label:'Pengguna', ic:'👥'},
     {id:'statistik', label:'Statistik', ic:'📊'},
     {id:'tetapan', label:'Tetapan', ic:'⚙️'}
   ];
@@ -965,6 +1321,7 @@
     closeDrawer();
     window.scrollTo(0,0);
     renderActiveView();
+    touchLastSeen();
   }
 
   function closeDrawer(){ document.getElementById('drawer-overlay').classList.remove('open'); }
@@ -982,6 +1339,7 @@
     else if(currentView === 'jadual') renderJadual();
     else if(currentView === 'guru') renderGuru();
     else if(currentView === 'subjek') renderSubjek();
+    else if(currentView === 'pengguna') renderPengguna();
     else if(currentView === 'statistik') renderStatistik();
     else if(currentView === 'tetapan') renderTetapan();
   }
@@ -995,6 +1353,11 @@
     var status = getClassStatus(b, new Date());
     var badge = status === 'ongoing' ? '<span class="status-badge"><span class="dot"></span>Sedang Berlangsung</span>' : '';
     var notes = b.notes ? '<div class="class-notes">"'+escapeHtml(b.notes)+'"</div>' : '';
+    var meta = '';
+    if(b.createdBy){
+      meta = '<div class="booking-meta">Ditambah oleh '+escapeHtml(b.createdBy)+
+        (b.updatedBy ? ' · dikemaskini oleh '+escapeHtml(b.updatedBy) : '')+'</div>';
+    }
     var actions = '';
     if(opts.showActions !== false){
       actions = '<button type="button" class="row-btn edit-btn" data-edit-id="'+escapeHtml(b.id)+'" aria-label="Edit tempahan">'+
@@ -1007,7 +1370,7 @@
       '<div class="class-main">' +
         '<span class="subject-name">'+(SUBJECT_ICON[b.subject]||'')+' '+escapeHtml(b.subject)+'</span>' +
         '<span class="teacher-name">'+dateLabel+escapeHtml(b.teacher)+'</span>' +
-        notes + badge +
+        notes + meta + badge +
       '</div>' +
       '<div class="class-right">' +
         '<div class="class-time">'+escapeHtml(formatTimeDisplay(b.from))+'–'+escapeHtml(formatTimeDisplay(b.to))+'</div>' +
@@ -1085,6 +1448,24 @@
     }
 
     document.getElementById('dash-upcoming').innerHTML = bookingListHTML(upcoming, {showActions:true, showDate:true});
+
+    var usersSummaryEl = document.getElementById('dash-users-summary');
+    if(usersSummaryEl){
+      var activeCount = Object.keys(usersCache).filter(function(n){ return isRecentlyActive(usersCache[n].lastSeen); }).length;
+      var loggedCount = Object.keys(usersCache).length;
+      usersSummaryEl.innerHTML = '<div class="card" style="padding:14px 16px;display:flex;gap:18px;flex-wrap:wrap;">' +
+        '<div><strong>'+loggedCount+'</strong> <span style="color:var(--ink-soft);font-size:13px;">pengguna pernah log masuk</span></div>' +
+        '<div><strong>'+activeCount+'</strong> <span style="color:var(--ink-soft);font-size:13px;">aktif sekarang</span></div>' +
+        '<button type="button" class="btn ghost sm" data-nav="pengguna" style="margin-left:auto;">Lihat semua →</button>' +
+      '</div>';
+    }
+    var activityEl = document.getElementById('dash-activity');
+    if(activityEl){
+      var recentAct = activityCache.slice(0,5);
+      activityEl.innerHTML = recentAct.length ?
+        '<div class="activity-list">' + recentAct.map(activityItemHTML).join('') + '</div>' :
+        '<div class="empty-state"><div class="es-ic">📜</div><div class="display">Tiada aktiviti lagi</div></div>';
+    }
   }
   function statCardHTML(ic, label, value){
     return '<div class="card stat-card"><div class="stat-ic">'+ic+'</div><div class="stat-value">'+value+'</div><div class="stat-label">'+escapeHtml(label)+'</div></div>';
@@ -1423,24 +1804,44 @@
   });
   document.getElementById('clash-overlay').addEventListener('click', function(e){ if(e.target.id === 'clash-overlay'){ pendingSubmit=null; e.currentTarget.hidden = true; } });
 
+  function describeBookingDiff(oldB, fields){
+    var parts = [];
+    if(fields.teacher && fields.teacher !== oldB.teacher) parts.push('guru: '+oldB.teacher+' → '+fields.teacher);
+    if((fields.date && fields.date !== oldB.date) || (fields.from && fields.from !== oldB.from) || (fields.to && fields.to !== oldB.to)){
+      parts.push('masa: '+formatDateDisplay(oldB.date)+' '+formatTimeDisplay(oldB.from)+'–'+formatTimeDisplay(oldB.to)+
+        ' → '+formatDateDisplay(fields.date||oldB.date)+' '+formatTimeDisplay(fields.from||oldB.from)+'–'+formatTimeDisplay(fields.to||oldB.to));
+    }
+    return parts.length ? parts.join('; ') : 'butiran dikemaskini';
+  }
   async function submitTempahan(fields){
+    if(!currentUser){ toast('Sila log masuk dahulu', 'error'); return; }
     fSubmitBtn.disabled = true;
     fSubmitBtn.textContent = 'Menyimpan…';
     var isEdit = !!editingBookingId;
-    var result;
+    var result, diffDesc = '', oldBooking = null;
     if(isEdit){
       var id = editingBookingId;
+      oldBooking = findBooking(id);
+      if(oldBooking) diffDesc = describeBookingDiff(oldBooking, fields);
       result = await persistBookings(function(base){
-        return base.map(function(b){ return b.id === id ? Object.assign({}, b, fields) : b; });
+        return base.map(function(b){
+          if(b.id !== id) return b;
+          return Object.assign({}, b, fields, {updatedBy: currentUser.name, updatedByType: currentUser.type, updatedAt: Date.now()});
+        });
       });
     } else {
-      var newBooking = Object.assign({id:genId(), createdAt:Date.now()}, fields);
+      var newBooking = Object.assign({id:genId(), createdAt:Date.now(), createdBy:currentUser.name, createdByType:currentUser.type}, fields);
       result = await persistBookings(function(base){ return base.concat([newBooking]); });
     }
     fSubmitBtn.disabled = false;
     fSubmitBtn.textContent = isEdit ? 'Kemaskini Tempahan' : 'Simpan Tempahan';
     if(result.ok){
       toast(isEdit ? 'Tempahan dikemaskini' : 'Tempahan berjaya!', isEdit ? 'info' : 'success');
+      if(isEdit){
+        logActivity('UPDATE_BOOKING', {targetType:'booking', targetId:id, description: currentUser.name+' mengemaskini '+fields.subject+' ('+diffDesc+')'});
+      } else {
+        logActivity('CREATE_BOOKING', {targetType:'booking', targetId:newBooking.id, description: currentUser.name+' menempah '+fields.subject+' dengan '+fields.teacher+' pada '+formatDateDisplay(fields.date)});
+      }
       navigateTo('jadual');
     } else {
       fErrorEl.textContent = result.message;
@@ -1467,7 +1868,9 @@
   cancelOverlay.addEventListener('click', function(e){ if(e.target === cancelOverlay){ cancelOverlay.hidden = true; pendingDeleteId = null; } });
   cancelYesBtn.addEventListener('click', async function(){
     if(!pendingDeleteId) return;
+    if(!currentUser){ toast('Sila log masuk dahulu', 'error'); return; }
     var id = pendingDeleteId;
+    var deletedBooking = findBooking(id);
     cancelYesBtn.disabled = true;
     cancelYesBtn.textContent = 'Membatalkan…';
     var result = await persistBookings(function(base){ return base.filter(function(b){ return b.id !== id; }); });
@@ -1477,6 +1880,9 @@
       cancelOverlay.hidden = true;
       pendingDeleteId = null;
       toast('Tempahan dibatalkan', 'warning');
+      if(deletedBooking){
+        logActivity('DELETE_BOOKING', {targetType:'booking', targetId:id, description: currentUser.name+' membatalkan '+deletedBooking.subject+' ('+deletedBooking.teacher+', '+formatDateDisplay(deletedBooking.date)+')'});
+      }
     } else {
       cancelErrorEl.textContent = result.message;
       cancelErrorEl.hidden = false;
@@ -1631,6 +2037,54 @@
   }
 
   /* =========================================================
+     Pengguna
+  ========================================================= */
+  function userCardHTML(name, type, rec){
+    var lastSeen = rec ? rec.lastSeen : null;
+    var active = isRecentlyActive(lastSeen);
+    var statusHTML = rec ?
+      ('<span class="u-status '+(active?'active':'inactive')+'">'+(active?'🟢 Aktif sekarang':'⚪ Tidak aktif')+'</span>') :
+      '<span class="u-status inactive">⚪ Belum pernah login</span>';
+    var seenLabel = rec && rec.lastSeen ? humanizeLastSeen(rec.lastSeen) : '';
+    var icon = type === 'Pelajar' ? '👨‍🎓' : '👨‍🏫';
+    return '<div class="user-card"><div class="profile-avatar" style="margin:0 auto 8px;">'+escapeHtml(name.charAt(0))+'</div>' +
+      '<div style="font-weight:800;">'+icon+' '+escapeHtml(name)+'</div>' +
+      statusHTML +
+      (seenLabel && active === false ? '<div class="u-lastseen">'+escapeHtml(seenLabel)+'</div>' : '') +
+    '</div>';
+  }
+  function activityItemHTML(a){
+    var ic = ACTIVITY_ICONS[a.action] || '•';
+    var when = a.clientTime ? timeAgoShort(new Date(a.clientTime)) : '';
+    return '<div class="activity-item"><span class="activity-ic">'+ic+'</span>' +
+      '<span class="activity-text">'+escapeHtml(a.description || (a.userName+' - '+a.action))+'</span>' +
+      '<span class="activity-time">'+escapeHtml(when)+'</span></div>';
+  }
+  function renderPengguna(){
+    var studentGrid = document.getElementById('pengguna-student-grid');
+    if(studentGrid){
+      studentGrid.innerHTML = STUDENT_NAMES.map(function(name){
+        return userCardHTML(name, 'Pelajar', usersCache[name] || null);
+      }).join('');
+    }
+    var teacherGrid = document.getElementById('pengguna-teacher-grid');
+    if(teacherGrid){
+      var teacherNames = Object.keys(usersCache).filter(function(n){ return usersCache[n].type === 'Cikgu'; });
+      teacherNames.sort();
+      teacherGrid.innerHTML = teacherNames.length ?
+        teacherNames.map(function(name){ return userCardHTML(name, 'Cikgu', usersCache[name]); }).join('') :
+        '<div class="empty-state"><div class="es-ic">👨‍🏫</div><div class="display">Belum ada guru log masuk</div></div>';
+    }
+    var historyEl = document.getElementById('pengguna-login-history');
+    if(historyEl){
+      var logins = activityCache.filter(function(a){ return a.action === 'LOGIN'; }).slice(0,15);
+      historyEl.innerHTML = logins.length ?
+        logins.map(activityItemHTML).join('') :
+        '<div class="empty-state"><div class="es-ic">📜</div><div class="display">Tiada rekod log masuk lagi</div></div>';
+    }
+  }
+
+  /* =========================================================
      Tetapan
   ========================================================= */
   function renderTetapan(){
@@ -1667,7 +2121,10 @@
     if(!updated){ toast('Nama guru tidak boleh kosong', 'error'); return; }
     saveTeacherConfig(function(cfg){ cfg.subjectTeachers[subject] = updated; })
       .then(function(res){
-        if(res.ok) toast('Guru utama '+subject+' dikemaskini kepada '+updated, 'success');
+        if(res.ok){
+          toast('Guru utama '+subject+' dikemaskini kepada '+updated, 'success');
+          logActivity('UPDATE_TEACHER', {targetType:'subject', targetId:subject, description: (currentUser?currentUser.name:'?')+' menukar guru utama '+subject+' kepada '+updated});
+        }
         else toast(res.message, 'error');
       });
   });
@@ -1680,7 +2137,11 @@
       if(!cfg.workshopTeachers[subject]) cfg.workshopTeachers[subject] = [];
       if(cfg.workshopTeachers[subject].indexOf(name) === -1) cfg.workshopTeachers[subject].push(name);
     }).then(function(res){
-      if(res.ok){ toast('Guru bengkel ditambah', 'success'); document.getElementById('ws-name').value=''; }
+      if(res.ok){
+        toast('Guru bengkel ditambah', 'success');
+        document.getElementById('ws-name').value='';
+        logActivity('UPDATE_TEACHER', {targetType:'subject', targetId:subject, description: (currentUser?currentUser.name:'?')+' menambah guru bengkel '+name+' untuk '+subject});
+      }
       else toast(res.message, 'error');
     });
   });
@@ -1773,6 +2234,32 @@
       }
     }, function(){ toast('Tidak dapat sambung ke storan dikongsi.', 'error'); });
 
+    usersColRef.onSnapshot(function(snap){
+      var next = {};
+      snap.forEach(function(doc){
+        var d = doc.data();
+        next[doc.id] = {
+          type: d.type,
+          lastSeen: d.lastSeen && d.lastSeen.toDate ? d.lastSeen.toDate() : null,
+          lastLoginAt: d.lastLoginAt && d.lastLoginAt.toDate ? d.lastLoginAt.toDate() : null,
+          firstLoginAt: d.firstLoginAt && d.firstLoginAt.toDate ? d.firstLoginAt.toDate() : null,
+          loginCount: d.loginCount || 0
+        };
+      });
+      usersCache = next;
+      renderActiveView();
+    }, function(){ /* ignore */ });
+
+    activityColRef.orderBy('clientTime','desc').limit(40).onSnapshot(function(snap){
+      var list = [];
+      snap.forEach(function(doc){ list.push(doc.data()); });
+      activityCache = list;
+      renderActiveView();
+    }, function(){ /* ignore */ });
+
+    setInterval(function(){ touchLastSeen(); }, 120000);
+
+    restoreSession();
     navigateTo('dashboard');
   }
 
