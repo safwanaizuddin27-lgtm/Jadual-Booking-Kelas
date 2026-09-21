@@ -338,6 +338,7 @@
     background:var(--live-bg);color:var(--live-ink);border:1px solid var(--live-border);
     width:fit-content;
   }
+  .status-badge.extending{background:var(--danger-bg);color:var(--danger-ink);border-color:var(--danger-border);}
   .status-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--live-ink);}
   @media (prefers-reduced-motion:no-preference){
     .status-badge .dot{animation:pulse-dot 1.6s ease-in-out infinite;}
@@ -375,7 +376,8 @@
   .week-head-cell .wd-date{display:block;font-size:14px;font-family:'Fredoka',sans-serif;color:var(--ink);margin-top:1px;}
   .week-head-cell.is-today{color:var(--accent);}
   .week-scroll{overflow-x:auto;}
-  .week-body{position:relative;display:grid;grid-template-columns:52px repeat(7,1fr);min-width:640px;}
+  .week-scroll-inner{min-width:640px;}
+  .week-body{position:relative;display:grid;grid-template-columns:52px repeat(7,1fr);}
   .week-time-col{display:flex;flex-direction:column;}
   .week-time-cell{height:48px;font-size:10.5px;color:var(--ink-faint);text-align:right;padding-right:6px;transform:translateY(-6px);}
   .week-lines-col{border-left:1px solid var(--border);position:relative;}
@@ -582,6 +584,48 @@
 
   .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
   .profile-btn[hidden],#profile-btn-mobile[hidden]{display:none !important;}
+  .ongoing-card{
+    background:var(--live-bg);border:1px solid var(--live-border);border-radius:16px;
+    padding:16px 18px;margin-bottom:10px;
+  }
+  .ongoing-card.extending{background:var(--danger-bg);border-color:var(--danger-border);}
+  .oc-subject{font-family:'Fredoka',sans-serif;font-weight:700;font-size:17px;color:var(--ink);}
+  .oc-teacher{color:var(--ink-soft);font-size:13.5px;margin-top:2px;}
+  .oc-time{color:var(--live-ink);font-weight:700;font-size:13.5px;margin-top:6px;}
+  .ongoing-card.extending .oc-time{color:var(--danger-ink);}
+  .oc-actions{margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .ext-info{color:var(--danger-ink);font-weight:700;font-size:13px;}
+  .timeline-status{margin-left:auto;font-size:11.5px;font-weight:700;color:var(--ink-faint);padding:2px 8px;border-radius:20px;background:var(--surface-2);flex-shrink:0;}
+  .notif-badge{
+    background:var(--danger-ink);color:#fff;font-size:10.5px;font-weight:800;
+    min-width:17px;height:17px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+    padding:0 4px;
+  }
+  #notif-badge-desktop{position:absolute;right:14px;}
+  #notif-badge-mobile{position:absolute;top:2px;right:2px;}
+  .notif-item{
+    display:flex;gap:10px;align-items:flex-start;padding:12px 10px;border-bottom:1px solid var(--border);
+  }
+  .notif-item:last-child{border-bottom:none;}
+  .notif-item.unread{background:var(--surface-2);border-radius:10px;}
+  .notif-ic{font-size:18px;flex-shrink:0;}
+  .notif-body{flex:1;min-width:0;}
+  .notif-body-title{font-weight:700;font-size:13.5px;}
+  .notif-body-text{color:var(--ink-soft);font-size:12.5px;margin-top:2px;}
+  .notif-body-time{color:var(--ink-faint);font-size:11px;margin-top:4px;}
+  .hist-table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:14px;}
+  .hist-table{width:100%;border-collapse:collapse;font-size:13px;min-width:480px;}
+  .hist-table th{text-align:left;padding:10px 12px;color:var(--ink-soft);font-size:11.5px;text-transform:uppercase;letter-spacing:0.03em;border-bottom:1px solid var(--border);}
+  .hist-table td{padding:10px 12px;border-bottom:1px solid var(--border);}
+  .hist-table tr:last-child td{border-bottom:none;}
+  .status-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+  .status-pill.st-upcoming{background:var(--info-bg,var(--surface-2));color:var(--ink-soft);}
+  .status-pill.st-ongoing{background:var(--live-bg);color:var(--live-ink);}
+  .status-pill.st-extending{background:var(--danger-bg);color:var(--danger-ink);}
+  .status-pill.st-ended{background:var(--surface-2);color:var(--ink-faint);}
+  .status-pill.st-cancelled{background:var(--danger-bg);color:var(--danger-ink);opacity:0.75;}
+  .gender-row{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);}
+  .gender-row:last-child{border-bottom:none;}
 </style>
 </head>
 <body>
@@ -635,6 +679,11 @@
     </div>
     <nav id="sidebar-nav"></nav>
     <div class="sidebar-footer">
+      <button type="button" class="profile-btn" id="notif-btn-desktop" hidden style="margin-bottom:6px;">
+        <span style="font-size:17px;">🔔</span>
+        <div class="profile-btn-text"><strong>Notifikasi</strong><span id="notif-count-desktop-label">Tiada baharu</span></div>
+        <span class="notif-badge" id="notif-badge-desktop" hidden>0</span>
+      </button>
       <button type="button" class="profile-btn" id="profile-btn-desktop" hidden>
         <div class="profile-avatar" id="profile-avatar-desktop"></div>
         <div class="profile-btn-text"><strong id="profile-name-desktop"></strong><span id="profile-type-desktop"></span></div>
@@ -651,6 +700,7 @@
       <button type="button" class="icon-btn" id="open-drawer-btn" aria-label="Menu">☰</button>
       <div class="tb-title">JADUAL KELAS</div>
       <div class="tb-actions">
+        <button type="button" class="icon-btn" id="notif-btn-mobile" aria-label="Notifikasi" hidden style="position:relative;">🔔<span class="notif-badge" id="notif-badge-mobile" hidden>0</span></button>
         <button type="button" class="icon-btn" id="profile-btn-mobile" aria-label="Profil" hidden>👤</button>
         <button type="button" class="icon-btn" id="theme-toggle-mobile" aria-label="Tukar tema">🌙</button>
       </div>
@@ -663,14 +713,17 @@
           <h1>Selamat datang 👋</h1>
           <p>Berikut ialah ringkasan jadual kelas anda.</p>
         </div>
-        <div class="stat-grid" id="dash-stats"></div>
+        <div class="section-title"><h2>🟢 Sedang Berlangsung</h2></div>
+        <div id="dash-ongoing"></div>
         <div class="section-title"><h2>📅 Jadual Hari Ini</h2></div>
         <div id="dash-today"></div>
         <div class="section-title">
-          <h2>⏳ Tempahan Akan Datang</h2>
+          <h2>📌 Tempahan Akan Datang</h2>
           <button type="button" class="link" data-nav="jadual">Lihat Semua Jadual →</button>
         </div>
         <div id="dash-upcoming"></div>
+        <div class="section-title"><h2>📊 Ringkasan</h2></div>
+        <div class="stat-grid" id="dash-stats"></div>
         <div class="section-title"><h2>👥 Pengguna</h2></div>
         <div id="dash-users-summary"></div>
         <div class="section-title"><h2>📜 Aktiviti Terkini</h2></div>
@@ -812,6 +865,8 @@
         <div class="chart-card"><h3>Tempahan Mengikut Hari</h3><div id="chart-day"></div></div>
         <div class="chart-card"><h3>Waktu Paling Sibuk</h3><div id="chart-hour"></div></div>
         <div class="chart-card"><h3>Penggunaan Guru</h3><div id="chart-teacher"></div></div>
+        <div class="section-title"><h2>📜 Sejarah Kelas</h2></div>
+        <div id="stat-history"></div>
       </section>
 
       <!-- Tetapan -->
@@ -820,6 +875,10 @@
         <div class="card" style="margin-bottom:18px;">
           <div style="padding:14px 16px 4px;font-weight:700;font-size:14px;">👨‍🏫 Pengurusan Guru &amp; Subjek</div>
           <div id="settings-teacher-list"></div>
+        </div>
+        <div class="section-title"><h2>🚻 Jantina Guru</h2></div>
+        <div class="card" style="margin-bottom:18px;">
+          <div id="settings-gender-list"></div>
         </div>
         <div class="section-title"><h2>🔧 Guru Bengkel</h2></div>
         <div class="card" style="padding:16px;">
@@ -880,6 +939,49 @@
   </div>
 </div>
 
+<!-- Notifications -->
+<div class="overlay" id="notif-overlay" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="notif-title" style="max-height:80vh;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <h2 id="notif-title" style="margin:0;">🔔 Notifikasi</h2>
+      <button type="button" class="link" id="notif-markall-btn">Tandakan semua dibaca</button>
+    </div>
+    <button type="button" class="btn ghost sm" id="notif-enable-btn" style="margin-top:8px;">🔔 Aktifkan Notifikasi</button>
+    <div id="notif-list" style="overflow-y:auto;margin-top:10px;flex:1;"></div>
+    <button type="button" class="btn ghost block" id="notif-close-btn" style="margin-top:10px;">Tutup</button>
+  </div>
+</div>
+
+<!-- Extend class -->
+<div class="overlay" id="extend-overlay" hidden>
+  <div class="sheet" role="alertdialog" aria-modal="true" aria-labelledby="extend-title">
+    <h2 id="extend-title">Sahkan Extend?</h2>
+    <p class="sub" id="extend-current-info"></p>
+    <div class="inline-banner danger" id="extend-error" hidden></div>
+    <div class="sheet-actions">
+      <button type="button" class="btn ghost" id="extend-cancel-btn">Batal</button>
+      <button type="button" class="btn danger" id="extend-confirm-btn" style="flex:1;">Sahkan Extend</button>
+    </div>
+  </div>
+</div>
+
+<!-- Stop extend: ask actual end time -->
+<div class="overlay" id="stop-extend-overlay" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="stop-extend-title">
+    <h2 id="stop-extend-title">Extend tadi sampai pukul berapa?</h2>
+    <p class="sub" id="stop-extend-message"></p>
+    <div class="field">
+      <label for="stop-extend-until-input">Waktu extension tamat</label>
+      <input type="time" id="stop-extend-until-input">
+    </div>
+    <div class="inline-banner danger" id="stop-extend-error" hidden></div>
+    <div class="sheet-actions">
+      <button type="button" class="btn ghost" id="stop-extend-no-btn">Batal</button>
+      <button type="button" class="btn danger" id="stop-extend-yes-btn" style="flex:1;">Sahkan</button>
+    </div>
+  </div>
+</div>
+
 <!-- Profile -->
 <div class="overlay" id="profile-overlay" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="profile-name">
@@ -917,6 +1019,7 @@
   var metaDocRef = db.collection('jadualKelas').doc('meta');
   var usersColRef = metaDocRef.collection('users');
   var activityColRef = metaDocRef.collection('activity');
+  var notifColRef = metaDocRef.collection('notifications');
 
   /* =========================================================
      Static data
@@ -968,8 +1071,14 @@
      Global state
   ========================================================= */
   var bookings = [];
-  var teacherConfig = { subjectTeachers: {}, workshopTeachers: {} };
+  var teacherConfig = { subjectTeachers: {}, workshopTeachers: {}, teacherGenders: {} };
   Object.keys(DEFAULT_SUBJECT_TEACHERS).forEach(function(s){ teacherConfig.subjectTeachers[s] = DEFAULT_SUBJECT_TEACHERS[s]; });
+  function teacherEmoji(name){
+    var g = teacherConfig.teacherGenders && teacherConfig.teacherGenders[name];
+    if(g === 'F') return '👩‍🏫';
+    if(g === 'M') return '👨‍🏫';
+    return '👨‍🏫';
+  }
 
   var currentView = 'dashboard';
   var calMode = 'week';
@@ -986,6 +1095,13 @@
   var activityCache = []; // most recent activity entries, newest first
   var lastSeenWriteAt = 0;
   var SESSION_KEY = 'jadual-session';
+  var notifCache = []; // recent notification docs, newest first: {id, type, title, body, createdAt, read}
+  var pendingExtendId = null;
+  var pendingStopExtendId = null;
+  var NOTIF_ICONS = {
+    BOOKING_CREATED:'📚', CLASS_STARTED:'🟢', EXTENSION_STARTED:'🔴',
+    EXTENSION_STOPPED:'⏹️', BOOKING_UPDATED:'✏️', BOOKING_CANCELLED:'❌'
+  };
 
   /* =========================================================
      Utilities
@@ -1014,6 +1130,257 @@
     if(now>=start) return 'ongoing';
     return 'upcoming';
   }
+  var STATUS_LABELS = {
+    upcoming:'Akan Datang',
+    ongoing:'Sedang Berlangsung',
+    extending:'Sedang Extend',
+    ended:'Selesai',
+    cancelled:'Dibatalkan'
+  };
+  function computeBookingStatus(b, now){
+    now = now || new Date();
+    if(b.cancelledAt) return 'cancelled';
+    var start = bookingDateTime(b.date, b.from), end = bookingDateTime(b.date, b.to);
+    if(now < start) return 'upcoming';
+    if(now >= end) return 'ended';
+    return b.extensionActive ? 'extending' : 'ongoing';
+  }
+  function statusLabel(key){ return STATUS_LABELS[key] || key; }
+  function generateTimeBasedNotifications(){
+    var now = new Date();
+    bookings.forEach(function(b){
+      if(b.cancelledAt) return;
+      var st = computeBookingStatus(b, now);
+      if(st === 'ongoing' || st === 'extending'){
+        ensureNotification('class-started-'+b.id, 'CLASS_STARTED',
+          b.subject+' sedang berlangsung sekarang.',
+          b.teacher+' · '+formatTimeDisplay(b.from)+'–'+formatTimeDisplay(b.to));
+      }
+    });
+  }
+  function ensureNotification(id, type, title, body){
+    if(notifCache.some(function(n){ return n.id === id; })) return;
+    notifColRef.doc(id).get().then(function(snap){
+      if(snap.exists) return;
+      notifColRef.doc(id).set({
+        type: type, title: title, body: body,
+        createdAt: Date.now(), read:false
+      });
+    }).catch(function(){});
+  }
+
+  /* =========================================================
+     Real device / push notifications
+     No backend push server is available for this static site, so this
+     uses the browser Notification API + a Service Worker: real OS-level
+     notification banners that fire while the browser is running (tab can
+     be backgrounded/minimised). This is not full Web Push (it will not
+     wake the browser if it is fully closed), which would need a push
+     server (e.g. Firebase Cloud Messaging + a backend) that this static
+     HTML file cannot host on its own.
+  ========================================================= */
+  function registerServiceWorker(){
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.register('sw.js').catch(function(){});
+    }
+  }
+  function updatePushButton(){
+    var btn = document.getElementById('notif-enable-btn');
+    if(!btn) return;
+    if(!('Notification' in window)){ btn.hidden = true; return; }
+    btn.hidden = false;
+    if(Notification.permission === 'granted'){ btn.textContent = '🔔 Notifikasi Diaktifkan'; btn.disabled = true; }
+    else if(Notification.permission === 'denied'){ btn.textContent = '🔕 Notifikasi Disekat oleh Peranti'; btn.disabled = true; }
+    else { btn.textContent = '🔔 Aktifkan Notifikasi'; btn.disabled = false; }
+  }
+  function requestPushPermission(){
+    if(!('Notification' in window)){ toast('Peranti/pelayar ini tidak menyokong notifikasi.', 'error'); return; }
+    Notification.requestPermission().then(function(perm){
+      updatePushButton();
+      if(perm === 'granted') toast('Notifikasi peranti diaktifkan!', 'success');
+      else if(perm === 'denied') toast('Notifikasi disekat. Aktifkan semula melalui tetapan pelayar.', 'error');
+    });
+  }
+  function showDeviceNotification(title, body, tag){
+    if(!('Notification' in window) || Notification.permission !== 'granted') return;
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.ready.then(function(reg){
+        reg.showNotification(title, {body: body || '', tag: tag});
+      }).catch(function(){
+        try{ new Notification(title, {body: body || '', tag: tag}); }catch(e){}
+      });
+    } else {
+      try{ new Notification(title, {body: body || '', tag: tag}); }catch(e){}
+    }
+  }
+
+  /* =========================================================
+     Notification panel
+  ========================================================= */
+  function timeAgoRelative(ms){
+    var diffMin = Math.floor((Date.now()-ms)/60000);
+    if(diffMin < 1) return 'baru sahaja';
+    if(diffMin < 60) return diffMin+' minit lalu';
+    var diffHr = Math.floor(diffMin/60);
+    if(diffHr < 24) return diffHr+' jam lalu';
+    return Math.floor(diffHr/24)+' hari lalu';
+  }
+  function notifItemHTML(n){
+    var ic = NOTIF_ICONS[n.type] || '🔔';
+    return '<div class="notif-item'+(n.read?'':' unread')+'">' +
+      '<span class="notif-ic">'+ic+'</span>' +
+      '<div class="notif-body">' +
+        '<div class="notif-body-title">'+escapeHtml(n.title)+'</div>' +
+        (n.body ? '<div class="notif-body-text">'+escapeHtml(n.body)+'</div>' : '') +
+        '<div class="notif-body-time">'+timeAgoRelative(n.createdAt)+'</div>' +
+      '</div>' +
+    '</div>';
+  }
+  function updateNotifBadge(){
+    var unread = notifCache.filter(function(n){ return !n.read; }).length;
+    ['notif-badge-desktop','notif-badge-mobile'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(!el) return;
+      el.hidden = unread === 0;
+      el.textContent = unread > 9 ? '9+' : String(unread);
+    });
+    var label = document.getElementById('notif-count-desktop-label');
+    if(label) label.textContent = unread === 0 ? 'Tiada baharu' : (unread+' belum dibaca');
+  }
+  function renderNotifPanel(){
+    var el = document.getElementById('notif-list');
+    if(!el) return;
+    el.innerHTML = notifCache.length ?
+      notifCache.map(notifItemHTML).join('') :
+      '<div class="empty-state"><div class="es-ic">🔔</div><div class="display">Tiada notifikasi lagi</div></div>';
+  }
+  function openNotifPanel(){
+    document.getElementById('notif-overlay').hidden = false;
+    renderNotifPanel();
+  }
+  function markAllNotifsRead(){
+    var unread = notifCache.filter(function(n){ return !n.read; });
+    if(!unread.length) return;
+    var batch = db.batch();
+    unread.forEach(function(n){ batch.update(notifColRef.doc(n.id), {read:true}); });
+    batch.commit().catch(function(){});
+  }
+
+  /* =========================================================
+     Extend system
+  ========================================================= */
+  function openExtendModal(id){
+    var b = findBooking(id);
+    if(!b) return;
+    pendingExtendId = id;
+    document.getElementById('extend-error').hidden = true;
+    document.getElementById('extend-current-info').textContent =
+      'Adakah anda pasti mahu extend kelas '+b.subject+' ini?';
+    document.getElementById('extend-overlay').hidden = false;
+  }
+  function closeExtendModal(){ document.getElementById('extend-overlay').hidden = true; pendingExtendId = null; }
+
+  async function confirmExtend(){
+    if(!pendingExtendId || !currentUser) return;
+    var b = findBooking(pendingExtendId);
+    if(!b) return;
+    var errEl = document.getElementById('extend-error');
+    var extId = genId();
+    var result = await persistBookings(function(base){
+      return base.map(function(x){
+        if(x.id !== pendingExtendId) return x;
+        var hist = (x.extensionHistory || []).slice();
+        hist.push({id:extId, startedBy: currentUser.name, startedAt: Date.now(), extendedUntil:null, stoppedBy:null, stoppedAt:null});
+        return Object.assign({}, x, {extensionActive:true, extensionHistory: hist, originalTo: x.originalTo || x.to});
+      });
+    });
+    if(result.ok){
+      toast('Kelas '+b.subject+' sedang di-extend', 'success');
+      logActivity('UPDATE_BOOKING', {targetType:'booking', targetId:b.id, description: currentUser.name+' memulakan extend untuk '+b.subject});
+      ensureNotification('extension-started-'+b.id+'-'+extId, 'EXTENSION_STARTED',
+        b.subject+' sedang di-extend.', 'Di-extend oleh '+currentUser.name);
+      closeExtendModal();
+    } else {
+      errEl.textContent = result.message;
+      errEl.hidden = false;
+    }
+  }
+
+  function openStopExtendConfirm(id){
+    var b = findBooking(id);
+    if(!b) return;
+    pendingStopExtendId = id;
+    document.getElementById('stop-extend-error').hidden = true;
+    document.getElementById('stop-extend-message').textContent =
+      'Kelas '+b.subject+' sedang di-extend. Masukkan waktu ia sebenarnya tamat.';
+    var now = new Date();
+    document.getElementById('stop-extend-until-input').value = pad2(now.getHours())+':'+pad2(now.getMinutes());
+    document.getElementById('stop-extend-overlay').hidden = false;
+  }
+  async function stopExtend(){
+    if(!pendingStopExtendId || !currentUser) return;
+    var id = pendingStopExtendId;
+    var b = findBooking(id);
+    if(!b) return;
+    var until = document.getElementById('stop-extend-until-input').value;
+    var errEl = document.getElementById('stop-extend-error');
+    if(!until || toMinutes(until) <= toMinutes(b.from)){
+      errEl.textContent = 'Sila masukkan waktu tamat yang sah (selepas '+formatTimeDisplay(b.from)+').';
+      errEl.hidden = false;
+      return;
+    }
+    var conflicts = findClashes(b.subject, b.date, b.from, until, b.id);
+    if(conflicts.length){
+      var c = conflicts[0];
+      errEl.textContent = '⚠️ Tidak boleh extend sehingga '+formatTimeDisplay(until)+' kerana terdapat kelas '+c.subject+' pada '+formatTimeDisplay(c.from)+'.';
+      errEl.hidden = false;
+      return;
+    }
+    errEl.hidden = true;
+    var extId = (b.extensionHistory && b.extensionHistory.length) ? b.extensionHistory[b.extensionHistory.length-1].id : null;
+    var result = await persistBookings(function(base){
+      return base.map(function(x){
+        if(x.id !== id) return x;
+        var hist = (x.extensionHistory || []).map(function(h){
+          if(h.id === extId){ return Object.assign({}, h, {extendedUntil: until, stoppedAt:Date.now(), stoppedBy:currentUser.name}); }
+          return h;
+        });
+        return Object.assign({}, x, {to: until, extensionActive:false, extensionHistory: hist});
+      });
+    });
+    if(result.ok){
+      document.getElementById('stop-extend-overlay').hidden = true;
+      pendingStopExtendId = null;
+      toast('Extension dihentikan', 'info');
+      logActivity('UPDATE_BOOKING', {targetType:'booking', targetId:id, description: currentUser.name+' menghentikan extension '+b.subject+' — sehingga '+formatTimeDisplay(until)});
+      if(extId){
+        ensureNotification('extension-stopped-'+id+'-'+extId, 'EXTENSION_STOPPED',
+          'Extension '+b.subject+' telah dihentikan oleh '+currentUser.name+'.', 'Extend sehingga '+formatTimeDisplay(until));
+      }
+    } else {
+      errEl.textContent = result.message;
+      errEl.hidden = false;
+    }
+  }
+
+  document.addEventListener('click', function(e){
+    var extBtn = e.target.closest ? e.target.closest('[data-extend-id]') : null;
+    if(extBtn){ openExtendModal(extBtn.getAttribute('data-extend-id')); return; }
+    var stopBtn = e.target.closest ? e.target.closest('[data-stop-extend-id]') : null;
+    if(stopBtn){ openStopExtendConfirm(stopBtn.getAttribute('data-stop-extend-id')); return; }
+  });
+  document.getElementById('extend-cancel-btn').addEventListener('click', closeExtendModal);
+  document.getElementById('extend-confirm-btn').addEventListener('click', confirmExtend);
+  document.getElementById('extend-overlay').addEventListener('click', function(e){ if(e.target.id === 'extend-overlay') closeExtendModal(); });
+  document.getElementById('stop-extend-no-btn').addEventListener('click', function(){ document.getElementById('stop-extend-overlay').hidden = true; pendingStopExtendId = null; });
+  document.getElementById('stop-extend-yes-btn').addEventListener('click', stopExtend);
+  document.getElementById('stop-extend-overlay').addEventListener('click', function(e){ if(e.target.id === 'stop-extend-overlay'){ e.currentTarget.hidden = true; pendingStopExtendId = null; } });
+  document.getElementById('notif-btn-desktop').addEventListener('click', openNotifPanel);
+  document.getElementById('notif-btn-mobile').addEventListener('click', openNotifPanel);
+  document.getElementById('notif-close-btn').addEventListener('click', function(){ document.getElementById('notif-overlay').hidden = true; });
+  document.getElementById('notif-overlay').addEventListener('click', function(e){ if(e.target.id === 'notif-overlay') e.currentTarget.hidden = true; });
+  document.getElementById('notif-markall-btn').addEventListener('click', markAllNotifsRead);
+  document.getElementById('notif-enable-btn').addEventListener('click', requestPushPermission);
   function isExemptClash(a,b){
     if(a===b) return false;
     for(var i=0;i<EXEMPT_PAIRS.length;i++){ var p=EXEMPT_PAIRS[i]; if(p.indexOf(a)!==-1 && p.indexOf(b)!==-1) return true; }
@@ -1114,7 +1481,7 @@
   ========================================================= */
   function updateProfileUI(){
     var hasUser = !!currentUser;
-    ['profile-btn-desktop','profile-btn-mobile'].forEach(function(id){
+    ['profile-btn-desktop','profile-btn-mobile','notif-btn-desktop','notif-btn-mobile'].forEach(function(id){
       var el = document.getElementById(id);
       if(el) el.hidden = !hasUser;
     });
@@ -1350,8 +1717,9 @@
   function bookingRowHTML(b, opts){
     opts = opts || {};
     var color = SUBJECT_COLOR[b.subject] || '#7C6CE8';
-    var status = getClassStatus(b, new Date());
-    var badge = status === 'ongoing' ? '<span class="status-badge"><span class="dot"></span>Sedang Berlangsung</span>' : '';
+    var status = computeBookingStatus(b, new Date());
+    var badge = status === 'ongoing' ? '<span class="status-badge"><span class="dot"></span>Sedang Berlangsung</span>' :
+      (status === 'extending' ? '<span class="status-badge extending"><span class="dot"></span>🔴 Sedang Extend</span>' : '');
     var notes = b.notes ? '<div class="class-notes">"'+escapeHtml(b.notes)+'"</div>' : '';
     var meta = '';
     if(b.createdBy){
@@ -1386,6 +1754,21 @@
     }
     return '<ul class="class-list">' + list.map(function(b){ return bookingRowHTML(b, opts); }).join('') + '</ul>';
   }
+  function ongoingCardHTML(b){
+    var st = computeBookingStatus(b, new Date());
+    var extending = st === 'extending';
+    var lastExt = (b.extensionHistory && b.extensionHistory.length) ? b.extensionHistory[b.extensionHistory.length-1] : null;
+    var extendBtn = extending ?
+      ('<div class="ext-info">🔴 Sedang Extend</div>' +
+       '<button type="button" class="btn danger sm" data-stop-extend-id="'+escapeHtml(b.id)+'">HENTIKAN EXTEND</button>') :
+      ('<button type="button" class="btn danger sm" data-extend-id="'+escapeHtml(b.id)+'">🔴 EXTEND</button>');
+    return '<div class="ongoing-card'+(extending?' extending':'')+'">' +
+      '<div class="oc-subject">'+(SUBJECT_ICON[b.subject]||'')+' '+escapeHtml(b.subject)+'</div>' +
+      '<div class="oc-teacher">'+escapeHtml(b.teacher)+'</div>' +
+      '<div class="oc-time">'+escapeHtml(formatTimeDisplay(b.from))+' – '+escapeHtml(formatTimeDisplay(b.to))+'</div>' +
+      '<div class="oc-actions">'+extendBtn+'</div>' +
+    '</div>';
+  }
 
   document.addEventListener('click', function(e){
     var editBtn = e.target.closest ? e.target.closest('[data-edit-id]') : null;
@@ -1400,6 +1783,7 @@
   function applyFilters(list){
     var q = filters.search.trim().toLowerCase();
     return list.filter(function(b){
+      if(b.cancelledAt) return false;
       if(filters.subject && b.subject !== filters.subject) return false;
       if(filters.teacher && b.teacher !== filters.teacher) return false;
       if(q){
@@ -1422,17 +1806,24 @@
   function renderDashboard(){
     var now = new Date();
     var todayISO = isoDate(now);
-    var sorted = sortedBookings();
+    var sorted = sortedBookings().filter(function(b){ return !b.cancelledAt; });
     var todays = sorted.filter(function(b){ return b.date === todayISO; });
-    var upcoming = sorted.filter(function(b){ return getClassStatus(b, now) !== 'ended' && b.date >= todayISO; }).slice(0,6);
+    var ongoingNow = sorted.filter(function(b){ var st = computeBookingStatus(b, now); return st === 'ongoing' || st === 'extending'; });
+    var upcoming = sorted.filter(function(b){ return b.date > todayISO; }).slice(0,6);
     var teacherCount = allKnownTeachers().length;
 
     document.getElementById('dash-stats').innerHTML = [
-      statCardHTML('📚','Jumlah Tempahan', bookings.length),
+      statCardHTML('📚','Jumlah Tempahan', bookings.filter(function(b){return !b.cancelledAt;}).length),
       statCardHTML('👨\u200d🏫','Jumlah Guru', teacherCount),
       statCardHTML('📅','Tempahan Hari Ini', todays.length),
       statCardHTML('⏳','Tempahan Akan Datang', upcoming.length)
     ].join('');
+
+    var dashOngoing = document.getElementById('dash-ongoing');
+    if(dashOngoing){
+      dashOngoing.innerHTML = ongoingNow.length ? ongoingNow.map(ongoingCardHTML).join('') :
+        '<div class="empty-state"><div class="es-ic">🟢</div><div class="display">Tiada kelas sedang berlangsung sekarang.</div></div>';
+    }
 
     var dashToday = document.getElementById('dash-today');
     if(todays.length === 0){
@@ -1440,9 +1831,11 @@
     } else {
       dashToday.innerHTML = todays.map(function(b){
         var color = SUBJECT_COLOR[b.subject] || '#7C6CE8';
+        var st = computeBookingStatus(b, now);
         return '<div class="timeline-item" style="border-left-color:'+color+'">' +
           '<div class="timeline-time">'+escapeHtml(formatTimeDisplay(b.from))+'</div>' +
           '<div class="timeline-main"><div class="t-subject">'+escapeHtml(b.subject)+'</div><div class="t-teacher">'+escapeHtml(b.teacher)+'</div></div>' +
+          '<div class="timeline-status">'+escapeHtml(statusLabel(st))+'</div>' +
         '</div>';
       }).join('');
     }
@@ -1542,10 +1935,12 @@
     var overlayCols = '';
     for(var c2=0;c2<7;c2++){ overlayCols += '<div class="week-day-col" id="week-day-col-'+c2+'"></div>'; }
     return '<div class="week-view">' +
-      '<div class="week-head-row">'+head+'</div>' +
-      '<div class="week-scroll"><div class="week-body" id="week-body" style="height:'+(hours.length*ROW_HEIGHT)+'px;">' +
-        '<div class="week-time-col">'+timeCol+'</div>' + lineCols +
-        '<div class="week-events-overlay" id="week-events-overlay">'+overlayCols+'</div>' +
+      '<div class="week-scroll"><div class="week-scroll-inner">' +
+        '<div class="week-head-row">'+head+'</div>' +
+        '<div class="week-body" id="week-body" style="height:'+(hours.length*ROW_HEIGHT)+'px;">' +
+          '<div class="week-time-col">'+timeCol+'</div>' + lineCols +
+          '<div class="week-events-overlay" id="week-events-overlay">'+overlayCols+'</div>' +
+        '</div>' +
       '</div></div>' +
     '</div>';
   }
@@ -1703,6 +2098,7 @@
   function findClashes(subject, date, from, to, excludeId){
     return bookings.filter(function(b){
       if(excludeId && b.id === excludeId) return false;
+      if(b.cancelledAt) return false;
       return b.date === date && timesOverlap(b.from,b.to,from,to) && !isExemptClash(b.subject, subject);
     });
   }
@@ -1830,7 +2226,7 @@
         });
       });
     } else {
-      var newBooking = Object.assign({id:genId(), createdAt:Date.now(), createdBy:currentUser.name, createdByType:currentUser.type}, fields);
+      var newBooking = Object.assign({id:genId(), createdAt:Date.now(), createdBy:currentUser.name, createdByType:currentUser.type, originalTo: fields.to, extensionActive:false, extensionHistory:[]}, fields);
       result = await persistBookings(function(base){ return base.concat([newBooking]); });
     }
     fSubmitBtn.disabled = false;
@@ -1839,8 +2235,14 @@
       toast(isEdit ? 'Tempahan dikemaskini' : 'Tempahan berjaya!', isEdit ? 'info' : 'success');
       if(isEdit){
         logActivity('UPDATE_BOOKING', {targetType:'booking', targetId:id, description: currentUser.name+' mengemaskini '+fields.subject+' ('+diffDesc+')'});
+        ensureNotification('booking-updated-'+id+'-'+Date.now(), 'BOOKING_UPDATED',
+          'Tempahan '+fields.subject+' telah dikemaskini oleh '+currentUser.name+'.', diffDesc);
       } else {
         logActivity('CREATE_BOOKING', {targetType:'booking', targetId:newBooking.id, description: currentUser.name+' menempah '+fields.subject+' dengan '+fields.teacher+' pada '+formatDateDisplay(fields.date)});
+        var selfBooked = currentUser.name === fields.teacher;
+        ensureNotification('booking-created-'+newBooking.id, 'BOOKING_CREATED',
+          selfBooked ? (currentUser.name+' membuat tempahan '+fields.subject+'.') : (fields.teacher+' telah membuat tempahan '+fields.subject+'.'),
+          formatDateDisplay(fields.date)+' • '+formatTimeDisplay(fields.from)+'–'+formatTimeDisplay(fields.to));
       }
       navigateTo('jadual');
     } else {
@@ -1873,7 +2275,11 @@
     var deletedBooking = findBooking(id);
     cancelYesBtn.disabled = true;
     cancelYesBtn.textContent = 'Membatalkan…';
-    var result = await persistBookings(function(base){ return base.filter(function(b){ return b.id !== id; }); });
+    var result = await persistBookings(function(base){
+      return base.map(function(b){
+        return b.id === id ? Object.assign({}, b, {cancelledBy: currentUser ? currentUser.name : '?', cancelledByType: currentUser ? currentUser.type : '', cancelledAt: Date.now()}) : b;
+      });
+    });
     cancelYesBtn.disabled = false;
     cancelYesBtn.textContent = 'Ya, Batalkan';
     if(result.ok){
@@ -1882,6 +2288,8 @@
       toast('Tempahan dibatalkan', 'warning');
       if(deletedBooking){
         logActivity('DELETE_BOOKING', {targetType:'booking', targetId:id, description: currentUser.name+' membatalkan '+deletedBooking.subject+' ('+deletedBooking.teacher+', '+formatDateDisplay(deletedBooking.date)+')'});
+        ensureNotification('booking-cancelled-'+id, 'BOOKING_CANCELLED',
+          'Tempahan '+deletedBooking.subject+' telah dibatalkan oleh '+currentUser.name+'.', formatDateDisplay(deletedBooking.date)+' • '+formatTimeDisplay(deletedBooking.from)+'–'+formatTimeDisplay(deletedBooking.to));
       }
     } else {
       cancelErrorEl.textContent = result.message;
@@ -1912,10 +2320,10 @@
       return;
     }
     grid.innerHTML = teachers.map(function(t){
-      var tBookings = bookings.filter(function(b){ return b.teacher === t; });
+      var tBookings = bookings.filter(function(b){ return b.teacher === t && !b.cancelledAt; });
       var mainSubject = mostCommonSubjectFor(t);
       return '<div class="card entity-card" data-guru="'+escapeHtml(t)+'">' +
-        '<div class="e-ic">👨\u200d🏫</div>' +
+        '<div class="e-ic">'+teacherEmoji(t)+'</div>' +
         '<div class="e-name">'+escapeHtml(t)+'</div>' +
         '<div class="e-sub">'+escapeHtml(mainSubject || '—')+'</div>' +
         '<div class="e-count">'+tBookings.length+' tempahan</div>' +
@@ -1932,21 +2340,46 @@
     }
     return best;
   }
+  function statusBadgeHTML(key){
+    var cls = 'st-'+key;
+    return '<span class="status-pill '+cls+'">'+escapeHtml(statusLabel(key))+'</span>';
+  }
+  function historyTableHTML(list, columns){
+    if(!list.length){
+      return '<div class="empty-state"><div class="es-ic">📜</div><div class="display">Tiada sejarah lagi</div></div>';
+    }
+    var head = '<tr>'+columns.map(function(c){ return '<th>'+escapeHtml(c.label)+'</th>'; }).join('')+'</tr>';
+    var rows = list.map(function(b){
+      return '<tr>'+columns.map(function(c){ return '<td>'+c.get(b)+'</td>'; }).join('')+'</tr>';
+    }).join('');
+    return '<div class="hist-table-wrap"><table class="hist-table"><thead>'+head+'</thead><tbody>'+rows+'</tbody></table></div>';
+  }
   document.getElementById('guru-grid').addEventListener('click', function(e){
     var card = e.target.closest ? e.target.closest('[data-guru]') : null;
     if(card){ guruDetailName = card.getAttribute('data-guru'); renderGuru(); }
   });
   function renderGuruDetail(name){
     var now = new Date();
-    var list = sortedBookings().filter(function(b){ return b.teacher === name; });
-    var upcoming = list.filter(function(b){ return getClassStatus(b, now) !== 'ended'; });
-    var history = list.filter(function(b){ return getClassStatus(b, now) === 'ended'; }).reverse();
+    var all = sortedBookings().filter(function(b){ return b.teacher === name; });
+    var active = all.filter(function(b){ return !b.cancelledAt; });
+    var upcoming = active.filter(function(b){ return computeBookingStatus(b, now) === 'upcoming'; });
+    var subjSet = {};
+    active.forEach(function(b){ subjSet[b.subject] = true; });
+    var subjList = Object.keys(subjSet);
+    var history = all.slice().reverse();
     document.getElementById('guru-detail-content').innerHTML =
-      '<div class="page-head"><h1>👨\u200d🏫 '+escapeHtml(name)+'</h1><p>'+list.length+' jumlah tempahan</p></div>' +
+      '<div class="page-head"><h1>'+teacherEmoji(name)+' '+escapeHtml(name)+'</h1>' +
+        '<p>'+(subjList.length ? ('Mengajar: '+escapeHtml(subjList.join(', '))+' · ') : '')+active.length+' jumlah tempahan aktif · '+upcoming.length+' akan datang</p>' +
+      '</div>' +
       '<div class="section-title"><h2>Kelas Akan Datang</h2></div>' +
       bookingListHTML(upcoming, {showActions:true, showDate:true}) +
-      '<div class="section-title"><h2>Sejarah Tempahan</h2></div>' +
-      bookingListHTML(history, {showActions:true, showDate:true});
+      '<div class="section-title"><h2>📜 Sejarah Kelas</h2></div>' +
+      historyTableHTML(history, [
+        {label:'Tarikh', get:function(b){ return escapeHtml(formatDateDisplay(b.date)); }},
+        {label:'Masa', get:function(b){ return escapeHtml(formatTimeDisplay(b.from)+'–'+formatTimeDisplay(b.to)); }},
+        {label:'Subjek', get:function(b){ return escapeHtml(b.subject); }},
+        {label:'Status', get:function(b){ return statusBadgeHTML(computeBookingStatus(b, now)); }}
+      ]);
   }
 
   /* =========================================================
@@ -1978,10 +2411,25 @@
     if(card){ subjekDetailName = card.getAttribute('data-subjek'); renderSubjek(); }
   });
   function renderSubjekDetail(name){
-    var list = sortedBookings().filter(function(b){ return b.subject === name; });
+    var now = new Date();
+    var all = sortedBookings().filter(function(b){ return b.subject === name; });
+    var active = all.filter(function(b){ return !b.cancelledAt; });
+    var upcoming = active.filter(function(b){ return computeBookingStatus(b, now) === 'upcoming'; });
+    var mainTeacher = teacherConfig.subjectTeachers[name] || '—';
+    var history = all.slice().reverse();
     document.getElementById('subjek-detail-content').innerHTML =
-      '<div class="page-head"><h1>'+ (SUBJECT_ICON[name]||'') +' '+escapeHtml(name)+'</h1><p>'+list.length+' jumlah tempahan</p></div>' +
-      bookingListHTML(list, {showActions:true, showDate:true});
+      '<div class="page-head"><h1>'+ (SUBJECT_ICON[name]||'') +' '+escapeHtml(name)+'</h1>' +
+        '<p>Guru utama: '+escapeHtml(mainTeacher)+' · '+active.length+' jumlah tempahan aktif · '+upcoming.length+' akan datang</p>' +
+      '</div>' +
+      '<div class="section-title"><h2>Kelas Akan Datang</h2></div>' +
+      bookingListHTML(upcoming, {showActions:true, showDate:true}) +
+      '<div class="section-title"><h2>📜 Sejarah Kelas</h2></div>' +
+      historyTableHTML(history, [
+        {label:'Tarikh', get:function(b){ return escapeHtml(formatDateDisplay(b.date)); }},
+        {label:'Masa', get:function(b){ return escapeHtml(formatTimeDisplay(b.from)+'–'+formatTimeDisplay(b.to)); }},
+        {label:'Guru', get:function(b){ return escapeHtml(b.teacher); }},
+        {label:'Status', get:function(b){ return statusBadgeHTML(computeBookingStatus(b, now)); }}
+      ]);
   }
 
   /* =========================================================
@@ -1992,9 +2440,17 @@
     var todayISO = isoDate(now);
     var weekStart = isoDate(startOfWeek(now));
     var monthStart = isoDate(startOfMonth(now));
-    var stats = { total:bookings.length, today:0, thisWeek:0, thisMonth:0, bySubject:{}, byDay:{}, byHour:{}, byTeacher:{} };
+    var active = bookings.filter(function(b){ return !b.cancelledAt; });
+    var stats = { total:active.length, today:0, thisWeek:0, thisMonth:0, bySubject:{}, byDay:{}, byHour:{}, byTeacher:{},
+      completed:0, cancelled:0, ongoing:0, upcoming:0, extensions:0 };
     WEEK_ORDER.forEach(function(d){ stats.byDay[d] = 0; });
     bookings.forEach(function(b){
+      var st = computeBookingStatus(b, now);
+      if(st === 'cancelled'){ stats.cancelled++; return; }
+      if(st === 'ended') stats.completed++;
+      else if(st === 'ongoing' || st === 'extending') stats.ongoing++;
+      else if(st === 'upcoming') stats.upcoming++;
+      stats.extensions += (b.extensionHistory ? b.extensionHistory.length : 0);
       if(b.date === todayISO) stats.today++;
       if(b.date >= weekStart) stats.thisWeek++;
       if(b.date >= monthStart) stats.thisMonth++;
@@ -2021,12 +2477,17 @@
     }).join('');
   }
   function renderStatistik(){
+    var now = new Date();
     var s = computeStats();
     document.getElementById('stat-cards').innerHTML = [
       statCardHTML('📚','Jumlah Tempahan', s.total),
-      statCardHTML('🗓️','Tempahan Bulan Ini', s.thisMonth),
-      statCardHTML('📆','Tempahan Minggu Ini', s.thisWeek),
-      statCardHTML('📅','Tempahan Hari Ini', s.today)
+      statCardHTML('✅','Selesai', s.completed),
+      statCardHTML('❌','Dibatalkan', s.cancelled),
+      statCardHTML('🟢','Sedang Berlangsung', s.ongoing),
+      statCardHTML('⏳','Akan Datang', s.upcoming),
+      statCardHTML('🔴','Jumlah Extension', s.extensions),
+      statCardHTML('🗓️','Bulan Ini', s.thisMonth),
+      statCardHTML('📆','Minggu Ini', s.thisWeek)
     ].join('');
     document.getElementById('chart-subject').innerHTML = barChartHTML(s.bySubject, function(k){ return SUBJECT_COLOR[k]; });
     var byDayMalay = {};
@@ -2034,6 +2495,18 @@
     document.getElementById('chart-day').innerHTML = barChartHTML(byDayMalay);
     document.getElementById('chart-hour').innerHTML = barChartHTML(s.byHour);
     document.getElementById('chart-teacher').innerHTML = barChartHTML(s.byTeacher);
+
+    var histEl = document.getElementById('stat-history');
+    if(histEl){
+      var allHistory = sortedBookings().slice().reverse();
+      histEl.innerHTML = historyTableHTML(allHistory, [
+        {label:'Tarikh', get:function(b){ return escapeHtml(formatDateDisplay(b.date)); }},
+        {label:'Subjek', get:function(b){ return escapeHtml(b.subject); }},
+        {label:'Guru', get:function(b){ return escapeHtml(b.teacher); }},
+        {label:'Masa', get:function(b){ return escapeHtml(formatTimeDisplay(b.from)+'–'+formatTimeDisplay(b.to)); }},
+        {label:'Status', get:function(b){ return statusBadgeHTML(computeBookingStatus(b, now)); }}
+      ]);
+    }
   }
 
   /* =========================================================
@@ -2096,6 +2569,17 @@
       '</div>';
     }).join('');
 
+    var genderList = document.getElementById('settings-gender-list');
+    if(genderList){
+      var allTeachers = allKnownTeachers();
+      genderList.innerHTML = allTeachers.length ? allTeachers.map(function(t){
+        var g = teacherConfig.teacherGenders[t];
+        var label = g === 'F' ? 'Perempuan 👩‍🏫' : (g === 'M' ? 'Lelaki 👨‍🏫' : 'Belum ditetapkan');
+        return '<div class="gender-row"><div>'+escapeHtml(t)+'<div style="color:var(--ink-faint);font-size:12px;">'+label+'</div></div>' +
+          '<button type="button" class="btn ghost sm" data-edit-gender="'+escapeHtml(t)+'">✏️ Edit</button></div>';
+      }).join('') : '<div style="padding:14px 16px;color:var(--ink-faint);font-size:13px;">Tiada guru lagi.</div>';
+    }
+
     var wsSel = document.getElementById('ws-subject');
     wsSel.innerHTML = SUBJECTS.map(function(s){ return '<option value="'+escapeHtml(s.name)+'">'+escapeHtml(s.name)+'</option>'; }).join('');
 
@@ -2127,6 +2611,21 @@
         }
         else toast(res.message, 'error');
       });
+  });
+
+  document.getElementById('settings-gender-list').addEventListener('click', function(e){
+    var btn = e.target.closest ? e.target.closest('[data-edit-gender]') : null;
+    if(!btn) return;
+    var t = btn.getAttribute('data-edit-gender');
+    var ans = window.prompt('Jantina untuk '+t+'? Taip L (lelaki) atau P (perempuan):', teacherConfig.teacherGenders[t] === 'F' ? 'P' : (teacherConfig.teacherGenders[t] === 'M' ? 'L' : ''));
+    if(ans === null) return;
+    ans = ans.trim().toUpperCase();
+    var g = ans === 'P' ? 'F' : (ans === 'L' ? 'M' : null);
+    if(!g){ toast('Sila taip L atau P', 'error'); return; }
+    saveTeacherConfig(function(cfg){ cfg.teacherGenders[t] = g; }).then(function(res){
+      if(res.ok) toast('Jantina '+t+' dikemaskini', 'success');
+      else toast(res.message, 'error');
+    });
   });
 
   document.getElementById('ws-add-btn').addEventListener('click', function(){
@@ -2169,7 +2668,7 @@
     }
   }
   async function saveTeacherConfig(mutateFn){
-    var candidate = { subjectTeachers: Object.assign({}, teacherConfig.subjectTeachers), workshopTeachers: JSON.parse(JSON.stringify(teacherConfig.workshopTeachers)) };
+    var candidate = { subjectTeachers: Object.assign({}, teacherConfig.subjectTeachers), workshopTeachers: JSON.parse(JSON.stringify(teacherConfig.workshopTeachers)), teacherGenders: Object.assign({}, teacherConfig.teacherGenders) };
     mutateFn(candidate);
     try{
       await configDocRef.set(candidate);
@@ -2183,17 +2682,65 @@
      Auto-expiry tick
   ========================================================= */
   var firstBookingsLoaded = false;
-  async function tick(){
-    var now = new Date();
-    var anyEnded = bookings.some(function(b){ return getClassStatus(b, now) === 'ended'; });
-    if(anyEnded){
-      await persistBookings(function(base){
-        var n = new Date();
-        return base.filter(function(b){ return getClassStatus(b, n) !== 'ended'; });
+  function tick(){
+    // Bookings are no longer deleted after they end - status is computed live so history
+    // (Guru/Subjek/Statistik) always has real data. This just re-renders and, when a live
+    // ongoing/extend class has just ended, generates the relevant notifications.
+    renderActiveView();
+    generateTimeBasedNotifications();
+  }
+
+  /* =========================================================
+     One-time data fixes (each guarded by a Firestore flag doc so it
+     only ever runs once, no matter how many times/devices load the page)
+  ========================================================= */
+  var flagsColRef = metaDocRef.collection('flags');
+
+  function seedHistoricalBookings(){
+    var flagRef = flagsColRef.doc('seed-2026-09-21-history');
+    flagRef.get().then(function(snap){
+      if(snap.exists) return;
+      var seedRecords = [
+        {subject:'Sejarah', teacher:'Cikgu Loh', date:'2026-09-21', from:'13:30', to:'15:00', cancelled:true},
+        {subject:'Biologi', teacher:'Madam Patricia', date:'2026-09-21', from:'13:45', to:'15:00', cancelled:false},
+        {subject:'Matematik', teacher:'Cikgu Azurah', date:'2026-09-21', from:'15:00', to:'16:00', cancelled:false}
+      ];
+      return persistBookings(function(base){
+        var toAdd = seedRecords.filter(function(rec){
+          return !base.some(function(b){
+            return b.subject === rec.subject && b.teacher === rec.teacher && b.date === rec.date && b.from === rec.from && b.to === rec.to;
+          });
+        });
+        if(!toAdd.length) return base;
+        var nowTs = Date.now();
+        var extra = toAdd.map(function(rec){
+          var obj = {
+            id: genId(), subject: rec.subject, teacher: rec.teacher, date: rec.date, from: rec.from, to: rec.to,
+            notes: '', createdBy: 'SISTEM', createdByType: 'Cikgu', createdAt: nowTs,
+            originalTo: rec.to, extensionActive: false, extensionHistory: []
+          };
+          if(rec.cancelled){ obj.cancelledBy = 'SISTEM'; obj.cancelledAt = nowTs; }
+          return obj;
+        });
+        return base.concat(extra);
+      }).then(function(){
+        return flagRef.set({seededAt: Date.now()});
       });
-    } else {
-      renderActiveView();
-    }
+    }).catch(function(){});
+  }
+
+  function cleanupTestActivity(){
+    var flagRef = flagsColRef.doc('cleanup-2026-09-21');
+    flagRef.get().then(function(snap){
+      if(snap.exists) return;
+      return Promise.all([activityColRef.get(), notifColRef.get()]).then(function(results){
+        var batch = db.batch();
+        results[0].forEach(function(doc){ batch.delete(doc.ref); });
+        results[1].forEach(function(doc){ batch.delete(doc.ref); });
+        batch.set(flagRef, {cleanedAt: Date.now()});
+        return batch.commit();
+      });
+    }).catch(function(){});
   }
 
   /* =========================================================
@@ -2216,6 +2763,7 @@
         var d = snap.data();
         teacherConfig.subjectTeachers = Object.assign({}, DEFAULT_SUBJECT_TEACHERS, d.subjectTeachers || {});
         teacherConfig.workshopTeachers = d.workshopTeachers || {};
+        teacherConfig.teacherGenders = d.teacherGenders || {};
       } else if(!configSeeded){
         configSeeded = true;
         configDocRef.set({ subjectTeachers: DEFAULT_SUBJECT_TEACHERS, workshopTeachers: {} }).catch(function(){});
@@ -2257,7 +2805,30 @@
       renderActiveView();
     }, function(){ /* ignore */ });
 
+    var notifFirstSnapshot = true;
+    notifColRef.orderBy('createdAt','desc').limit(30).onSnapshot(function(snap){
+      var list = [];
+      snap.forEach(function(doc){ list.push(Object.assign({id:doc.id}, doc.data())); });
+      if(!notifFirstSnapshot){
+        snap.docChanges().forEach(function(change){
+          if(change.type === 'added'){
+            var d = change.doc.data();
+            showDeviceNotification(d.title || 'Notifikasi', d.body || '', change.doc.id);
+          }
+        });
+      }
+      notifFirstSnapshot = false;
+      notifCache = list;
+      updateNotifBadge();
+      if(!document.getElementById('notif-overlay').hidden) renderNotifPanel();
+    }, function(){ /* ignore */ });
+
     setInterval(function(){ touchLastSeen(); }, 120000);
+
+    registerServiceWorker();
+    updatePushButton();
+    seedHistoricalBookings();
+    cleanupTestActivity();
 
     restoreSession();
     navigateTo('dashboard');
