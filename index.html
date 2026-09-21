@@ -675,7 +675,7 @@
   <aside class="sidebar">
     <div class="brand">
       <div class="logo-dot">📅</div>
-      <div class="brand-text"><strong>JADUAL KELAS</strong><span>5 SIGMA · v2.1</span></div>
+      <div class="brand-text"><strong>JADUAL KELAS</strong><span>5 SIGMA · v2.2</span></div>
     </div>
     <nav id="sidebar-nav"></nav>
     <div class="sidebar-footer">
@@ -908,7 +908,7 @@
 <!-- Mobile drawer -->
 <div class="drawer-overlay" id="drawer-overlay">
   <div class="drawer">
-    <div class="brand"><div class="logo-dot">📅</div><div class="brand-text"><strong>JADUAL KELAS</strong><span>5 SIGMA · v2.1</span></div></div>
+    <div class="brand"><div class="logo-dot">📅</div><div class="brand-text"><strong>JADUAL KELAS</strong><span>5 SIGMA · v2.2</span></div></div>
     <nav id="drawer-nav"></nav>
   </div>
 </div>
@@ -2763,7 +2763,11 @@
   var flagsColRef = metaDocRef.collection('flags');
 
   function seedHistoricalBookings(){
-    var flagRef = flagsColRef.doc('seed-2026-09-21-history');
+    // Flag id bumped to "-v2": the earlier flag id could get marked "done"
+    // even when the save silently failed (see fix below), which would have
+    // permanently blocked any retry. Using a fresh id guarantees this runs
+    // for real at least once on every device that loads the updated file.
+    var flagRef = flagsColRef.doc('seed-2026-09-21-history-v2');
     flagRef.get().then(function(snap){
       if(snap.exists) return;
       var seedRecords = [
@@ -2789,10 +2793,21 @@
           return obj;
         });
         return base.concat(extra);
-      }).then(function(){
+      }).then(function(res){
+        // persistBookings() never rejects - it swallows its own errors and
+        // resolves with {ok:false, message:...} instead. Only mark this
+        // flag done when the save genuinely succeeded; otherwise leave the
+        // flag unset so the next page load tries again, instead of
+        // permanently "succeeding" at doing nothing.
+        if(res && res.ok === false){
+          console.error('seedHistoricalBookings: gagal simpan, akan cuba lagi lain kali.', res.message);
+          return;
+        }
         return flagRef.set({seededAt: Date.now()});
       });
-    }).catch(function(){});
+    }).catch(function(e){
+      console.error('seedHistoricalBookings: ralat tidak dijangka', e);
+    });
   }
 
   function cleanupTestActivity(){
