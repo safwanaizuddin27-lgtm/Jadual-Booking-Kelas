@@ -675,7 +675,7 @@
   <aside class="sidebar">
     <div class="brand">
       <div class="logo-dot">📅</div>
-      <div class="brand-text"><strong>JADUAL KELAS</strong><span>5 SIGMA</span></div>
+      <div class="brand-text"><strong>JADUAL KELAS</strong><span>5 SIGMA · v2.1</span></div>
     </div>
     <nav id="sidebar-nav"></nav>
     <div class="sidebar-footer">
@@ -908,7 +908,7 @@
 <!-- Mobile drawer -->
 <div class="drawer-overlay" id="drawer-overlay">
   <div class="drawer">
-    <div class="brand"><div class="logo-dot">📅</div><div class="brand-text"><strong>JADUAL KELAS</strong><span>5 SIGMA</span></div></div>
+    <div class="brand"><div class="logo-dot">📅</div><div class="brand-text"><strong>JADUAL KELAS</strong><span>5 SIGMA · v2.1</span></div></div>
     <nav id="drawer-nav"></nav>
   </div>
 </div>
@@ -947,6 +947,7 @@
       <button type="button" class="link" id="notif-markall-btn">Tandakan semua dibaca</button>
     </div>
     <button type="button" class="btn ghost sm" id="notif-enable-btn" style="margin-top:8px;">🔔 Aktifkan Notifikasi</button>
+    <div id="notif-permission-hint" class="inline-banner danger" style="margin-top:8px;" hidden></div>
     <div id="notif-list" style="overflow-y:auto;margin-top:10px;flex:1;"></div>
     <button type="button" class="btn ghost block" id="notif-close-btn" style="margin-top:10px;">Tutup</button>
   </div>
@@ -1184,21 +1185,61 @@
       navigator.serviceWorker.register('sw.js').catch(function(){});
     }
   }
+  function isIOS(){
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  }
+  function isStandalonePWA(){
+    return window.matchMedia && window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  }
   function updatePushButton(){
     var btn = document.getElementById('notif-enable-btn');
+    var hint = document.getElementById('notif-permission-hint');
     if(!btn) return;
-    if(!('Notification' in window)){ btn.hidden = true; return; }
+
+    // iOS Safari only supports web notifications when the site has been
+    // added to the Home Screen and opened from there (iOS 16.4+). Outside
+    // that, window.Notification usually doesn't exist at all on iOS.
+    if(isIOS() && !isStandalonePWA()){
+      btn.hidden = false;
+      btn.textContent = '🔔 Aktifkan Notifikasi';
+      btn.disabled = false;
+      if(hint){
+        hint.hidden = false;
+        hint.textContent = '📱 Di iPhone/iPad: tekan Kongsi (Share) → "Add to Home Screen" dahulu, kemudian buka website daripada ikon di Skrin Utama untuk aktifkan notifikasi.';
+      }
+      return;
+    }
+
+    if(!('Notification' in window)){ btn.hidden = true; if(hint) hint.hidden = true; return; }
     btn.hidden = false;
-    if(Notification.permission === 'granted'){ btn.textContent = '🔔 Notifikasi Diaktifkan'; btn.disabled = true; }
-    else if(Notification.permission === 'denied'){ btn.textContent = '🔕 Notifikasi Disekat oleh Peranti'; btn.disabled = true; }
-    else { btn.textContent = '🔔 Aktifkan Notifikasi'; btn.disabled = false; }
+    if(Notification.permission === 'granted'){
+      btn.textContent = '🔔 Notifikasi Diaktifkan';
+      btn.disabled = true;
+      if(hint) hint.hidden = true;
+    } else if(Notification.permission === 'denied'){
+      btn.textContent = '🔕 Notifikasi Disekat';
+      btn.disabled = true;
+      if(hint){
+        hint.hidden = false;
+        hint.textContent = '⚠️ Peranti/pelayar ini telah menyekat notifikasi untuk website ini sebelum ini. Pelayar tidak benarkan kami tanya semula secara automatik — anda perlu benarkan secara manual: tekan ikon 🔒 atau ⓘ di sebelah alamat website (URL) → Site settings / Kebenaran Laman → Notifications → tukar kepada "Allow", kemudian muat semula (refresh) halaman ini.';
+      }
+    } else {
+      btn.textContent = '🔔 Aktifkan Notifikasi';
+      btn.disabled = false;
+      if(hint) hint.hidden = true;
+    }
   }
   function requestPushPermission(){
+    if(isIOS() && !isStandalonePWA()){
+      updatePushButton();
+      return;
+    }
     if(!('Notification' in window)){ toast('Peranti/pelayar ini tidak menyokong notifikasi.', 'error'); return; }
+    if(Notification.permission === 'denied'){ updatePushButton(); return; }
     Notification.requestPermission().then(function(perm){
       updatePushButton();
       if(perm === 'granted') toast('Notifikasi peranti diaktifkan!', 'success');
-      else if(perm === 'denied') toast('Notifikasi disekat. Aktifkan semula melalui tetapan pelayar.', 'error');
+      else if(perm === 'denied') toast('Notifikasi disekat.', 'error');
     });
   }
   function showDeviceNotification(title, body, tag){
@@ -1212,6 +1253,21 @@
     } else {
       try{ new Notification(title, {body: body || '', tag: tag}); }catch(e){}
     }
+  }
+  // Auto-prompt: ask for notification permission automatically the moment
+  // someone enters the app (right after login / on returning-session
+  // restore), instead of waiting for a manual button tap. Only fires when
+  // permission hasn't been decided yet ('default') and the platform can
+  // actually show the native prompt (skips iOS outside Home-Screen mode,
+  // where the API is unusable anyway). The "🔔 Aktifkan Notifikasi" button
+  // stays as a fallback for anyone who dismisses this without deciding.
+  function autoRequestPushPermission(){
+    if(!('Notification' in window)) return;
+    if(isIOS() && !isStandalonePWA()) return;
+    if(Notification.permission !== 'default') return;
+    Notification.requestPermission().then(function(){
+      updatePushButton();
+    });
   }
 
   /* =========================================================
@@ -1257,6 +1313,7 @@
   function openNotifPanel(){
     document.getElementById('notif-overlay').hidden = false;
     renderNotifPanel();
+    updatePushButton();
   }
   function markAllNotifsRead(){
     var unread = notifCache.filter(function(n){ return !n.read; });
@@ -1568,6 +1625,12 @@
     logActivity('LOGIN', {description: name + ' log masuk sebagai ' + type});
     toast('Selamat datang, ' + name + '!', 'success');
     navigateTo(currentView || 'dashboard');
+    // Ask for notification permission right away on login, instead of
+    // waiting for a manual button tap. Browsers only allow this prompt to
+    // be triggered automatically once (until decided); after that it
+    // silently does nothing, and the "🔔 Aktifkan Notifikasi" button in
+    // the notification panel remains as a fallback.
+    autoRequestPushPermission();
   }
 
   function restoreSession(){
@@ -1581,6 +1644,9 @@
           document.getElementById('login-overlay').hidden = true;
           updateProfileUI();
           touchLastSeen();
+          // Returning user who hasn't decided on notifications yet also
+          // gets the automatic prompt, not just first-time logins.
+          autoRequestPushPermission();
           return;
         }
       }catch(e){}
@@ -2779,6 +2845,10 @@
         firstBookingsLoaded = true;
         tick();
         setInterval(tick, 60000);
+        // Only seed once the REAL bookings array has actually loaded, so the
+        // seed's add-only merge is always working from live data and can
+        // never race ahead and overwrite it with just the 3 seed records.
+        seedHistoricalBookings();
       }
     }, function(){ toast('Tidak dapat sambung ke storan dikongsi.', 'error'); });
 
@@ -2827,7 +2897,6 @@
 
     registerServiceWorker();
     updatePushButton();
-    seedHistoricalBookings();
     cleanupTestActivity();
 
     restoreSession();
