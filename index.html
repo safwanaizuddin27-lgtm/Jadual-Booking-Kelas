@@ -675,7 +675,7 @@
   <aside class="sidebar">
     <div class="brand">
       <div class="logo-dot">📅</div>
-      <div class="brand-text"><strong>JADUAL KELAS</strong><span>5 SIGMA · v2.2</span></div>
+      <div class="brand-text"><strong>JADUAL KELAS</strong><span>5 SIGMA · v2.2.1</span></div>
     </div>
     <nav id="sidebar-nav"></nav>
     <div class="sidebar-footer">
@@ -908,7 +908,7 @@
 <!-- Mobile drawer -->
 <div class="drawer-overlay" id="drawer-overlay">
   <div class="drawer">
-    <div class="brand"><div class="logo-dot">📅</div><div class="brand-text"><strong>JADUAL KELAS</strong><span>5 SIGMA · v2.2</span></div></div>
+    <div class="brand"><div class="logo-dot">📅</div><div class="brand-text"><strong>JADUAL KELAS</strong><span>5 SIGMA · v2.2.1</span></div></div>
     <nav id="drawer-nav"></nav>
   </div>
 </div>
@@ -2763,50 +2763,54 @@
   var flagsColRef = metaDocRef.collection('flags');
 
   function seedHistoricalBookings(){
-    // Flag id bumped to "-v2": the earlier flag id could get marked "done"
-    // even when the save silently failed (see fix below), which would have
-    // permanently blocked any retry. Using a fresh id guarantees this runs
-    // for real at least once on every device that loads the updated file.
-    var flagRef = flagsColRef.doc('seed-2026-09-21-history-v2');
-    flagRef.get().then(function(snap){
-      if(snap.exists) return;
-      var seedRecords = [
-        {subject:'Sejarah', teacher:'Cikgu Loh', date:'2026-09-21', from:'13:30', to:'15:00', cancelled:true},
-        {subject:'Biologi', teacher:'Madam Patricia', date:'2026-09-21', from:'13:45', to:'15:00', cancelled:false},
-        {subject:'Matematik', teacher:'Cikgu Azurah', date:'2026-09-21', from:'15:00', to:'16:00', cancelled:false}
-      ];
-      return persistBookings(function(base){
-        var toAdd = seedRecords.filter(function(rec){
-          return !base.some(function(b){
-            return b.subject === rec.subject && b.teacher === rec.teacher && b.date === rec.date && b.from === rec.from && b.to === rec.to;
+    // Flag id bumped to "-v3". Root cause of the earlier failures: this used
+    // to read the in-memory `bookings` variable and then call
+    // bookingsDocRef.set(...) (a full overwrite) - a classic read-then-write
+    // race. If ANY other write to bookingsDocRef happened in between (e.g. a
+    // real booking made on another tab/device right around the same time),
+    // whichever write finished last would silently wipe the other one out.
+    // That is exactly what happened: the flag got marked "done" (the seed's
+    // own write did succeed at the time), but a near-simultaneous ordinary
+    // booking write overwrote it straight back out again afterwards.
+    // Fixed by using a real Firestore transaction: it reads the live server
+    // document and writes atomically, and Firestore automatically retries
+    // the whole transaction if another write lands during it - so this can
+    // no longer be stomped by a concurrent booking action.
+    var flagRef = flagsColRef.doc('seed-2026-09-21-history-v3');
+    db.runTransaction(function(tx){
+      return tx.get(flagRef).then(function(flagSnap){
+        if(flagSnap.exists) return;
+        return tx.get(bookingsDocRef).then(function(bookingsSnap){
+          var data = (bookingsSnap.exists && bookingsSnap.data() && bookingsSnap.data().data) || [];
+          var base = Array.isArray(data) ? data : [];
+          var seedRecords = [
+            {subject:'Sejarah', teacher:'Cikgu Loh', date:'2026-09-21', from:'13:30', to:'15:00', cancelled:true},
+            {subject:'Biologi', teacher:'Madam Patricia', date:'2026-09-21', from:'13:45', to:'15:00', cancelled:false},
+            {subject:'Matematik', teacher:'Cikgu Azurah', date:'2026-09-21', from:'15:00', to:'16:00', cancelled:false}
+          ];
+          var toAdd = seedRecords.filter(function(rec){
+            return !base.some(function(b){
+              return b.subject === rec.subject && b.teacher === rec.teacher && b.date === rec.date && b.from === rec.from && b.to === rec.to;
+            });
           });
+          if(toAdd.length){
+            var nowTs = Date.now();
+            var extra = toAdd.map(function(rec){
+              var obj = {
+                id: genId(), subject: rec.subject, teacher: rec.teacher, date: rec.date, from: rec.from, to: rec.to,
+                notes: '', createdBy: 'SISTEM', createdByType: 'Cikgu', createdAt: nowTs,
+                originalTo: rec.to, extensionActive: false, extensionHistory: []
+              };
+              if(rec.cancelled){ obj.cancelledBy = 'SISTEM'; obj.cancelledAt = nowTs; }
+              return obj;
+            });
+            tx.set(bookingsDocRef, { data: base.concat(extra), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+          }
+          tx.set(flagRef, {seededAt: Date.now()});
         });
-        if(!toAdd.length) return base;
-        var nowTs = Date.now();
-        var extra = toAdd.map(function(rec){
-          var obj = {
-            id: genId(), subject: rec.subject, teacher: rec.teacher, date: rec.date, from: rec.from, to: rec.to,
-            notes: '', createdBy: 'SISTEM', createdByType: 'Cikgu', createdAt: nowTs,
-            originalTo: rec.to, extensionActive: false, extensionHistory: []
-          };
-          if(rec.cancelled){ obj.cancelledBy = 'SISTEM'; obj.cancelledAt = nowTs; }
-          return obj;
-        });
-        return base.concat(extra);
-      }).then(function(res){
-        // persistBookings() never rejects - it swallows its own errors and
-        // resolves with {ok:false, message:...} instead. Only mark this
-        // flag done when the save genuinely succeeded; otherwise leave the
-        // flag unset so the next page load tries again, instead of
-        // permanently "succeeding" at doing nothing.
-        if(res && res.ok === false){
-          console.error('seedHistoricalBookings: gagal simpan, akan cuba lagi lain kali.', res.message);
-          return;
-        }
-        return flagRef.set({seededAt: Date.now()});
       });
     }).catch(function(e){
-      console.error('seedHistoricalBookings: ralat tidak dijangka', e);
+      console.error('seedHistoricalBookings: transaksi gagal, akan cuba lagi lain kali.', e);
     });
   }
 
