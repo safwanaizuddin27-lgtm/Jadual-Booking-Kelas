@@ -1002,7 +1002,7 @@
   }
 
   .week-event{
-    position:absolute;left:3px;right:3px;border-radius:var(--r-sm);z-index:1;
+    position:absolute;border-radius:var(--r-sm);z-index:1;
     padding:var(--s1) var(--s2);font-size:10.5px;line-height:1.3;overflow:hidden;
     background:var(--surface-2);
     border:1px solid var(--border);
@@ -1011,8 +1011,19 @@
     transition:transform var(--t), box-shadow var(--t), border-color var(--t);
   }
   .week-event:hover{transform:translateY(-1px);box-shadow:var(--sh-md);z-index:2;border-color:var(--border-strong);}
-  .week-event strong{display:block;color:var(--ink);font-size:10.5px;font-weight:600;}
-  .week-event span{color:var(--ink-soft);font-size:9.5px;}
+  .week-event strong{
+    display:block;color:var(--ink);font-size:10.5px;font-weight:600;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .week-event span{
+    color:var(--ink-soft);font-size:9.5px;display:block;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  /* Two or more classes sharing a slot get narrower columns */
+  .week-event.is-split{padding:3px 5px;}
+  .week-event.is-split strong{font-size:9.5px;}
+  .week-event.is-split span{font-size:8.5px;}
+  .week-event.is-tight span{display:none;}
 
   /* Jadual — day view */
   .day-card{
@@ -1234,6 +1245,50 @@
     box-shadow:none;
   }
   #clash-confirm-btn:hover{background:var(--warn-solid);color:#241A03;border-color:var(--warn-solid);}
+
+  /* =========================================================
+     Attendance
+  ========================================================= */
+  .att-row{
+    display:flex;align-items:center;justify-content:space-between;gap:var(--s3);
+    padding:var(--s3) 0;border-bottom:1px solid var(--border);
+  }
+  .att-row:last-child{border-bottom:none;}
+  .att-name{font-size:13.5px;font-weight:600;color:var(--ink);min-width:0;}
+  .att-seg{display:flex;gap:3px;background:var(--surface-2);border:1px solid var(--border);
+    border-radius:var(--r-sm);padding:2px;flex:0 0 auto;}
+  .att-seg button{
+    border:none;background:transparent;cursor:pointer;font-family:inherit;
+    font-size:10.5px;font-weight:700;color:var(--ink-faint);
+    padding:5px 8px;border-radius:var(--r-xs);min-width:30px;
+    transition:background var(--t-fast), color var(--t-fast);
+  }
+  .att-seg button:hover{color:var(--ink);}
+  .att-seg button.on.t-live{background:var(--live-bg);color:var(--live-ink);}
+  .att-seg button.on.t-warn{background:var(--warn-bg);color:var(--warn-ink);}
+  .att-seg button.on.t-info{background:var(--info-bg);color:var(--info-ink);}
+  .att-seg button.on.t-danger{background:var(--danger-bg);color:var(--danger-ink);}
+  .att-tally{
+    display:flex;gap:var(--s2);flex-wrap:wrap;margin-bottom:var(--s2);
+  }
+  .att-chip{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:4px 10px;border-radius:var(--r-pill);
+    font-size:11.5px;font-weight:600;border:1px solid var(--border);
+    background:var(--surface-2);color:var(--ink-soft);
+  }
+  .att-chip b{color:var(--ink);font-weight:700;}
+  .att-bar{height:6px;border-radius:var(--r-pill);background:var(--surface-2);overflow:hidden;display:flex;}
+  .att-bar i{display:block;height:100%;}
+  .att-mine{
+    padding:var(--s5);border-radius:var(--r-lg);background:var(--surface);
+    border:1px solid var(--border);box-shadow:var(--sh-sm);
+  }
+  .att-mine .att-big{
+    font-family:var(--font-display);font-size:38px;font-weight:800;
+    letter-spacing:-0.04em;line-height:1;color:var(--ink);
+  }
+  .att-mine .att-cap{color:var(--ink-soft);font-size:13px;margin-top:var(--s2);}
 
   /* =========================================================
      Command palette
@@ -1570,6 +1625,11 @@
         <label for="login-student-select">Nama anda</label>
         <select id="login-student-select"></select>
       </div>
+      <div class="field" id="login-admin-wrap" hidden>
+        <label for="login-admin-pass">Kata laluan</label>
+        <input type="password" id="login-admin-pass" autocomplete="current-password" placeholder="••••">
+        <div class="field-help">Akaun ini dilindungi kata laluan.</div>
+      </div>
       <button type="button" class="btn primary block" id="login-student-submit">Masuk ke Jadual →</button>
     </div>
 
@@ -1577,10 +1637,15 @@
       <button type="button" class="login-back" data-back>← Kembali</button>
       <div class="login-emoji"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="9" cy="8" r="3.4"/><path d="M16.5 20a5.6 5.6 0 0 1 4.5-5.4M16 11.4a3 3 0 0 0 0-5.8"/></svg></div>
       <h2>Cikgu</h2>
-      <p class="sub">Masukkan nama anda.</p>
+      <p class="sub">Pilih nama anda daripada senarai.</p>
       <div class="field">
-        <label for="login-teacher-input">Nama anda</label>
-        <input type="text" id="login-teacher-input" placeholder="CONTOH: CIKGU AHMAD">
+        <label for="login-teacher-select">Nama anda</label>
+        <select id="login-teacher-select"></select>
+      </div>
+      <div class="field" id="login-teacher-other-wrap" hidden>
+        <label for="login-teacher-input">Tulis nama anda</label>
+        <input type="text" id="login-teacher-input" placeholder="CONTOH: CIKGU AHMAD" autocomplete="off" spellcheck="false">
+        <div class="field-help">Gunakan HURUF BESAR sahaja.</div>
       </div>
       <button type="button" class="btn primary block" id="login-teacher-submit">Masuk ke Jadual →</button>
     </div>
@@ -1781,8 +1846,53 @@
         <div class="chart-card"><h3>Tempahan Mengikut Hari</h3><div id="chart-day"></div></div>
         <div class="chart-card"><h3>Waktu Paling Sibuk</h3><div id="chart-hour"></div></div>
         <div class="chart-card"><h3>Penggunaan Guru</h3><div id="chart-teacher"></div></div>
+        <div class="section-title"><h2>Kehadiran</h2></div>
+        <div id="stat-att-insight"></div>
+        <div id="stat-attendance"></div>
         <div class="section-title"><h2>Sejarah Kelas</h2></div>
         <div id="stat-history"></div>
+      </section>
+
+      <!-- Jadual Tetap (admin) -->
+      <section class="view" id="view-tetap">
+        <div class="page-head">
+          <h1>Jadual Tetap</h1>
+          <p>Kelas yang berulang setiap minggu. Jadual minggu berikutnya hanya muncul pada hari Ahad.</p>
+        </div>
+        <div class="card form-card" style="max-width:none;margin-bottom:24px;">
+          <div class="row-2">
+            <div class="field">
+              <label for="rt-subject">Subjek</label>
+              <select id="rt-subject"></select>
+            </div>
+            <div class="field">
+              <label for="rt-teacher">Guru</label>
+              <input type="text" id="rt-teacher" placeholder="Contoh: CIKGU AZURAH" autocomplete="off">
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label for="rt-day">Hari</label>
+              <select id="rt-day"></select>
+            </div>
+            <div class="field">
+              <label for="rt-from">Masa Mula</label>
+              <input type="time" id="rt-from">
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label for="rt-to">Masa Tamat</label>
+              <input type="time" id="rt-to">
+            </div>
+            <div class="field" style="display:flex;align-items:flex-end;">
+              <button type="button" class="btn primary block" id="rt-add-btn">Tambah jadual tetap</button>
+            </div>
+          </div>
+          <div class="inline-banner danger" id="rt-error" hidden></div>
+        </div>
+        <div class="section-title"><h2>Senarai Jadual Tetap</h2></div>
+        <div id="rt-list"></div>
       </section>
 
       <!-- Tetapan -->
@@ -1899,6 +2009,21 @@
   </div>
 </div>
 
+<!-- Attendance (admin) -->
+<div class="overlay" id="att-overlay" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="att-title" style="max-width:520px;max-height:86vh;display:flex;flex-direction:column;">
+    <h2 id="att-title">Kehadiran</h2>
+    <p class="sub" id="att-sub"></p>
+    <div id="att-summary"></div>
+    <div id="att-list" style="overflow-y:auto;flex:1 1 auto;margin-top:14px;"></div>
+    <div class="inline-banner danger" id="att-error" hidden style="margin-top:12px;"></div>
+    <div class="sheet-actions">
+      <button type="button" class="btn ghost" id="att-close-btn">Tutup</button>
+      <button type="button" class="btn primary" id="att-save-btn" style="flex:1;">Simpan Kehadiran</button>
+    </div>
+  </div>
+</div>
+
 <!-- Command palette -->
 <div class="cmdk-overlay" id="cmdk-overlay" hidden>
   <div class="cmdk" role="dialog" aria-modal="true" aria-label="Command palette">
@@ -1982,7 +2107,14 @@
   };
 
   // Bump this one line to change the version shown across the app.
-  var APP_VERSION = 'v3.1';
+  var APP_VERSION = 'v3.2';
+
+  /* Admin account. The passcode lives in the page, so this is a gate that
+     keeps the admin tools out of the way of ordinary users — not real
+     security. Anyone who reads the source can find it. */
+  var ADMIN_USER = 'SAFWAN';
+  var ADMIN_PASSCODE = '1406';
+  var isAdmin = false;
 
   var STUDENT_NAMES = ["ADRIN","ALEEYSHA","DEA","HUSNA","IVY","KAETLYNN","KHAERA","AKIM","YASIN","SAFWAN","NATHANEIL","HAZARINNA","OCFREATY"];
   var ACTIVITY_ICONS = {
@@ -2057,7 +2189,7 @@
      Global state
   ========================================================= */
   var bookings = [];
-  var teacherConfig = { subjectTeachers: {}, workshopTeachers: {}, teacherGenders: {} };
+  var teacherConfig = { subjectTeachers: {}, workshopTeachers: {}, teacherGenders: {}, recurringTemplates: [] };
   Object.keys(DEFAULT_SUBJECT_TEACHERS).forEach(function(s){ teacherConfig.subjectTeachers[s] = DEFAULT_SUBJECT_TEACHERS[s]; });
   function teacherEmoji(name){
     var g = teacherConfig.teacherGenders && teacherConfig.teacherGenders[name];
@@ -2071,6 +2203,7 @@
   var calAnchor = new Date();
   var filters = { search:'', subject:'', teacher:'' };
   var editingBookingId = null;
+  var openingEditor = false;   // true only while openEditBooking drives navigation
   var manualOverride = false;
   var guruDetailName = null;
   var subjekDetailName = null;
@@ -2149,6 +2282,7 @@
     var now = new Date();
     bookings.forEach(function(b){
       if(b.cancelledAt) return;
+      if(b.autoGenerated) return;   // recurring classes are silent by design
       var st = computeBookingStatus(b, now);
       if(st === 'ongoing' || st === 'extending'){
         ensureNotification('class-started-'+b.id, 'CLASS_STARTED',
@@ -2486,6 +2620,23 @@
     return Object.keys(set).sort();
   }
 
+  // Everyone formally set up in Tetapan — subject teachers plus workshop
+  // teachers. Used for the login list so one-off names typed into a booking
+  // never end up as sign-in options.
+  function staffTeachers(){
+    var set = {};
+    Object.keys(teacherConfig.subjectTeachers).forEach(function(sub){
+      var n = teacherConfig.subjectTeachers[sub];
+      if(n && n !== '—') set[n] = true;
+    });
+    Object.keys(teacherConfig.workshopTeachers).forEach(function(sub){
+      (teacherConfig.workshopTeachers[sub] || []).forEach(function(n){
+        if(n && n !== '—') set[n] = true;
+      });
+    });
+    return Object.keys(set).sort();
+  }
+
   function allKnownTeachers(){
     var set = {};
     Object.keys(teacherConfig.subjectTeachers).forEach(function(s){ set[teacherConfig.subjectTeachers[s]] = true; });
@@ -2621,7 +2772,7 @@
   }
 
   function saveSessionLocal(){
-    try{ localStorage.setItem(SESSION_KEY, JSON.stringify({name:currentUser.name, type:currentUser.type})); }catch(e){}
+    try{ localStorage.setItem(SESSION_KEY, JSON.stringify({name:currentUser.name, type:currentUser.type, admin:isAdmin})); }catch(e){}
   }
   function clearSessionLocal(){
     try{ localStorage.removeItem(SESSION_KEY); }catch(e){}
@@ -2634,6 +2785,7 @@
     saveSessionLocal();
     document.getElementById('login-overlay').hidden = true;
     updateProfileUI();
+    refreshNav();
     var isFirst = !usersCache[name] || !usersCache[name].lastLoginAt;
     try{
       await usersColRef.doc(name).set({
@@ -2663,7 +2815,9 @@
       try{
         var parsed = JSON.parse(raw);
         if(parsed && parsed.name && parsed.type){
-          currentUser = parsed;
+          currentUser = {name:parsed.name, type:parsed.type};
+          isAdmin = parsed.admin === true && String(parsed.name).toUpperCase() === ADMIN_USER;
+          refreshNav();
           document.getElementById('login-overlay').hidden = true;
           updateProfileUI();
           touchLastSeen();
@@ -2681,6 +2835,8 @@
   function logout(){
     if(currentUser){ logActivity('LOGOUT', {description: currentUser.name + ' log keluar'}); }
     currentUser = null;
+    isAdmin = false;
+    refreshNav();
     clearSessionLocal();
     closeProfileOverlay();
     updateProfileUI();
@@ -2700,11 +2856,40 @@
   }
   populateStudentLoginSelect();
 
+  var TEACHER_OTHER = '__other__';
+  function populateTeacherLoginSelect(){
+    var sel = document.getElementById('login-teacher-select');
+    if(!sel) return;
+    var current = sel.value;
+    sel.innerHTML = '<option value="">Pilih nama anda…</option>' +
+      staffTeachers().map(function(n){
+        return '<option value="'+escapeHtml(n)+'">'+escapeHtml(n)+'</option>';
+      }).join('') +
+      '<option value="'+TEACHER_OTHER+'">Guru lain…</option>';
+    // Keep the choice if it still exists after a config refresh.
+    var keep = false;
+    for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value === current){ keep = true; break; } }
+    sel.value = keep ? current : '';
+    syncTeacherOtherField();
+  }
+  function syncTeacherOtherField(){
+    var sel = document.getElementById('login-teacher-select');
+    var wrap = document.getElementById('login-teacher-other-wrap');
+    if(!sel || !wrap) return;
+    wrap.hidden = sel.value !== TEACHER_OTHER;
+  }
+  document.getElementById('login-teacher-select').addEventListener('change', function(){
+    syncTeacherOtherField();
+    if(this.value === TEACHER_OTHER){
+      try{ document.getElementById('login-teacher-input').focus(); }catch(e){}
+    }
+  });
+
   document.querySelectorAll('.role-btn').forEach(function(btn){
     btn.addEventListener('click', function(){
       var role = btn.getAttribute('data-role');
       if(role === 'Pelajar'){ showLoginStep('login-step-student'); }
-      else { showLoginStep('login-step-teacher'); }
+      else { populateTeacherLoginSelect(); showLoginStep('login-step-teacher'); }
     });
   });
   document.querySelectorAll('[data-back]').forEach(function(btn){
@@ -2715,15 +2900,30 @@
     e.target.value = e.target.value.toUpperCase();
     try{ e.target.setSelectionRange(pos, pos); }catch(err){}
   });
+  document.getElementById('login-student-select').addEventListener('change', function(){
+    var wrap = document.getElementById('login-admin-wrap');
+    if(wrap) wrap.hidden = String(this.value).toUpperCase() !== ADMIN_USER;
+  });
   document.getElementById('login-student-submit').addEventListener('click', function(){
     var val = document.getElementById('login-student-select').value;
     if(!val){ toast('Sila pilih nama anda', 'error'); return; }
+    if(String(val).toUpperCase() === ADMIN_USER){
+      var pass = document.getElementById('login-admin-pass').value.trim();
+      if(pass !== ADMIN_PASSCODE){ toast('Kata laluan salah', 'error'); return; }
+      isAdmin = true;
+    } else {
+      isAdmin = false;
+    }
     completeLogin(val, 'Pelajar');
   });
   document.getElementById('login-teacher-submit').addEventListener('click', function(){
-    var val = document.getElementById('login-teacher-input').value.trim();
-    if(!val){ toast('Sila masukkan nama guru', 'error'); return; }
-    completeLogin(val, 'Cikgu');
+    var choice = document.getElementById('login-teacher-select').value;
+    if(!choice){ toast('Sila pilih nama anda', 'error'); return; }
+    if(choice !== TEACHER_OTHER){ completeLogin(choice, 'Cikgu'); return; }
+    // "Guru lain" is stored in upper case, matching how staff names are written.
+    var typed = document.getElementById('login-teacher-input').value.trim().toUpperCase();
+    if(!typed){ toast('Sila tulis nama anda', 'error'); return; }
+    completeLogin(typed, 'Cikgu');
   });
   document.getElementById('profile-btn-desktop').addEventListener('click', openProfileOverlay);
   document.getElementById('profile-btn-mobile').addEventListener('click', openProfileOverlay);
@@ -2774,8 +2974,12 @@
     {id:'subjek',    label:'Subjek',    ic:'subjek',    group:'MANAGEMENT'},
     {id:'pengguna',  label:'Pengguna',  ic:'pengguna',  group:'MANAGEMENT'},
     {id:'statistik', label:'Statistik', ic:'statistik', group:'ANALYTICS'},
+    {id:'tetap',     label:'Jadual Tetap', ic:'jadual', group:'MANAGEMENT', adminOnly:true},
     {id:'tetapan',   label:'Tetapan',   ic:'tetapan',   group:'SYSTEM'}
   ];
+  function visibleNavItems(){
+    return NAV_ITEMS.filter(function(it){ return !it.adminOnly || isAdmin; });
+  }
   var NAV_GROUP_ORDER = ['OVERVIEW','MANAGEMENT','ANALYTICS','SYSTEM'];
   var BOTTOM_NAV_IDS = ['dashboard','jadual','tempah'];
   // Shorter labels for the mobile bar; the sidebar/drawer keep the full names.
@@ -2785,7 +2989,7 @@
     var el = document.getElementById(containerId);
     var html = '';
     NAV_GROUP_ORDER.forEach(function(g){
-      var items = NAV_ITEMS.filter(function(it){ return it.group === g; });
+      var items = visibleNavItems().filter(function(it){ return it.group === g; });
       if(!items.length) return;
       html += '<div class="nav-group-label">'+escapeHtml(g)+'</div>';
       html += items.map(function(item){
@@ -2817,9 +3021,26 @@
     document.getElementById('profile-btn-bottom').addEventListener('click', openProfileOverlay);
   }
 
+  function refreshNav(){
+    if(!document.getElementById('sidebar-nav')) return;
+    buildNav('sidebar-nav');
+    buildNav('drawer-nav');
+    document.querySelectorAll('[data-nav]').forEach(function(btn){
+      btn.classList.toggle('active', btn.getAttribute('data-nav') === currentView);
+    });
+  }
+
   function navigateTo(viewId){
-    if(viewId === 'tempah' && editingBookingId === null){
-      resetTempahForm();
+    // Admin-only views are not reachable without the admin flag.
+    if(viewId === 'tetap' && !isAdmin) viewId = 'dashboard';
+    if(viewId === 'tempah'){
+      // "Tempah Slot" always starts a fresh booking. Only openEditBooking()
+      // is allowed to arrive here with the form pre-filled.
+      if(!openingEditor) resetTempahForm();
+    } else if(editingBookingId !== null){
+      // Leaving the form abandons an edit in progress, so the next visit
+      // cannot silently overwrite the booking that was open.
+      editingBookingId = null;
     }
     if(viewId !== 'guru'){ guruDetailName = null; }
     if(viewId !== 'subjek'){ subjekDetailName = null; }
@@ -2855,6 +3076,7 @@
     else if(currentView === 'subjek') renderSubjek();
     else if(currentView === 'pengguna') renderPengguna();
     else if(currentView === 'statistik') renderStatistik();
+    else if(currentView === 'tetap') renderTetap();
     else if(currentView === 'tetapan') renderTetapan();
   }
 
@@ -2879,6 +3101,11 @@
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>' +
         '<button type="button" class="row-btn" data-delete-id="'+escapeHtml(b.id)+'" aria-label="Batalkan kelas ini">'+
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
+      if(isAdmin){
+        actions = '<button type="button" class="row-btn att-btn" data-att-id="'+escapeHtml(b.id)+'" aria-label="Kehadiran" title="Kehadiran">'+
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">'+
+            '<path d="M4 12.5 9 17.5 20 6.5"/></svg></button>' + actions;
+      }
     }
     var dateLabel = opts.showDate ? '<span style="color:var(--ink-faint);font-weight:600;">'+escapeHtml(formatDateDisplay(b.date))+' · </span>' : '';
     return '<li class="class-row" style="--accent-c:'+color+'">' +
@@ -3372,6 +3599,35 @@
       '<span>Waktu Persekolahan</span></div>';
   }
 
+  // Lays overlapping classes out in columns instead of stacking them, so a
+  // legitimately concurrent pair (Pendidikan Islam / Pendidikan Moral) is
+  // both visible rather than one hiding the other.
+  function layoutOverlaps(items){
+    var sorted = items.slice().sort(function(a, b){
+      return (a.startM - b.startM) || (a.endM - b.endM);
+    });
+    var cluster = [], clusterEnd = -1, clusters = [];
+    sorted.forEach(function(it){
+      if(cluster.length && it.startM >= clusterEnd){ clusters.push(cluster); cluster = []; clusterEnd = -1; }
+      cluster.push(it);
+      clusterEnd = Math.max(clusterEnd, it.endM);
+    });
+    if(cluster.length) clusters.push(cluster);
+
+    clusters.forEach(function(group){
+      var colEnds = [];
+      group.forEach(function(it){
+        var placed = false;
+        for(var c = 0; c < colEnds.length; c++){
+          if(it.startM >= colEnds[c]){ colEnds[c] = it.endM; it.col = c; placed = true; break; }
+        }
+        if(!placed){ it.col = colEnds.length; colEnds.push(it.endM); }
+      });
+      group.forEach(function(it){ it.cols = colEnds.length; });
+    });
+    return sorted;
+  }
+
   function positionWeekEvents(list, anchor){
     var ws = startOfWeek(anchor);
     var rangeStart = WEEK_START_HOUR*60, rangeEnd = WEEK_END_HOUR*60;
@@ -3381,13 +3637,24 @@
       var col = document.getElementById('week-day-col-'+i);
       if(!col) continue;
       var dayBookings = list.filter(function(b){ return b.date === iso; });
-      col.innerHTML = schoolHoursBandHTML(d) + dayBookings.map(function(b){
+      var placed = layoutOverlaps(dayBookings.map(function(b){
+        return {
+          b: b,
+          startM: Math.max(rangeStart, toMinutes(b.from)),
+          endM: Math.min(rangeEnd, Math.max(toMinutes(b.to), toMinutes(b.from) + 20))
+        };
+      }));
+      col.innerHTML = schoolHoursBandHTML(d) + placed.map(function(it){
+        var b = it.b;
         var color = SUBJECT_COLOR[b.subject] || '#3B82F6';
-        var startM = Math.max(rangeStart, toMinutes(b.from));
-        var endM = Math.min(rangeEnd, Math.max(toMinutes(b.to), toMinutes(b.from)+20));
-        var top = (startM - rangeStart) * (ROW_HEIGHT/60);
-        var height = Math.max(18, (endM - startM) * (ROW_HEIGHT/60) - 2);
-        return '<div class="week-event" data-edit-id="'+escapeHtml(b.id)+'" style="--accent-c:'+color+';top:'+top+'px;height:'+height+'px;">' +
+        var top = (it.startM - rangeStart) * (ROW_HEIGHT/60);
+        var height = Math.max(18, (it.endM - it.startM) * (ROW_HEIGHT/60) - 2);
+        var cols = it.cols || 1, width = 100 / cols, left = (it.col || 0) * width;
+        var cls = 'week-event' + (cols > 1 ? ' is-split' : '') + (cols > 2 ? ' is-tight' : '');
+        return '<div class="' + cls + '" data-edit-id="'+escapeHtml(b.id)+'" ' +
+          'title="'+escapeHtml(b.subject+' · '+b.teacher+' · '+formatTimeDisplay(b.from)+'–'+formatTimeDisplay(b.to))+'" ' +
+          'style="--accent-c:'+color+';top:'+top+'px;height:'+height+'px;' +
+            'left:calc('+left+'% + 2px);width:calc('+width+'% - 4px);">' +
           '<strong>'+escapeHtml(b.subject)+'</strong><span>'+escapeHtml(b.teacher)+'</span>' +
         '</div>';
       }).join('');
@@ -3564,8 +3831,10 @@
   function openEditBooking(id){
     var b = findBooking(id);
     if(!b) return;
+    openingEditor = true;
     editingBookingId = id;
     navigateTo('tempah');
+    openingEditor = false;
     tempahTitle.textContent = 'Edit Tempahan';
     fSubmitBtn.textContent = 'Kemaskini Tempahan';
     populateSubjectSelect();
@@ -3677,6 +3946,148 @@
       fErrorEl.hidden = false;
     }
   }
+
+  /* =========================================================
+     Attendance
+     Stored on the booking itself as {name: status}. Only classes that
+     have actually been marked count toward any figure, so an unmarked
+     class never drags a percentage down.
+  ========================================================= */
+  var ATT_STATUSES = [
+    {id:'hadir',        label:'Hadir',        short:'H', tone:'live'},
+    {id:'lewat',        label:'Lewat',        short:'L', tone:'warn'},
+    {id:'dikecualikan', label:'Dikecualikan', short:'D', tone:'info'},
+    {id:'tidak',        label:'Tidak Hadir',  short:'T', tone:'danger'}
+  ];
+  var ATT_LABEL = {}, ATT_TONE = {};
+  ATT_STATUSES.forEach(function(x){ ATT_LABEL[x.id] = x.label; ATT_TONE[x.id] = x.tone; });
+  var ATT_TONE_VAR = {live:'var(--live-solid)', warn:'var(--warn-solid)', info:'var(--accent)', danger:'var(--danger-solid)'};
+
+  function isMarked(b){ return !!(b.attendance && Object.keys(b.attendance).length); }
+  function markedClasses(){
+    return bookings.filter(function(b){ return !b.cancelledAt && isMarked(b); });
+  }
+  // Late still counts as attended; excused is left out of the denominator
+  // entirely so it neither helps nor hurts.
+  function rateFrom(c){
+    var counted = c.hadir + c.lewat + c.tidak;
+    return counted ? Math.round(((c.hadir + c.lewat) / counted) * 100) : null;
+  }
+  function emptyTally(){ return {hadir:0, lewat:0, dikecualikan:0, tidak:0}; }
+  function attendanceFor(name){
+    var c = emptyTally(), total = 0;
+    markedClasses().forEach(function(b){
+      var v = b.attendance[name];
+      if(!v || !(v in c)) return;
+      c[v]++; total++;
+    });
+    return {counts:c, total:total, rate:rateFrom(c)};
+  }
+  function attendanceOverall(){
+    var c = emptyTally(), perStudent = {}, perSubject = {};
+    STUDENT_NAMES.forEach(function(n){ perStudent[n] = emptyTally(); });
+    markedClasses().forEach(function(b){
+      var sc = perSubject[b.subject] || (perSubject[b.subject] = emptyTally());
+      Object.keys(b.attendance).forEach(function(n){
+        var v = b.attendance[n];
+        if(!(v in c)) return;
+        c[v]++; sc[v]++;
+        if(!perStudent[n]) perStudent[n] = emptyTally();
+        perStudent[n][v]++;
+      });
+    });
+    return {counts:c, rate:rateFrom(c), perStudent:perStudent, perSubject:perSubject,
+            classes:markedClasses().length};
+  }
+
+  /* ---- marking sheet ---- */
+  var attOverlay = document.getElementById('att-overlay');
+  var attBookingId = null, attDraft = {};
+
+  function attTallyHTML(counts){
+    return '<div class="att-tally">' + ATT_STATUSES.map(function(st){
+      return '<span class="att-chip"><span style="width:6px;height:6px;border-radius:50%;background:'+
+        ATT_TONE_VAR[st.tone]+'"></span>'+escapeHtml(st.label)+' <b>'+(counts[st.id]||0)+'</b></span>';
+    }).join('') + '</div>';
+  }
+  function renderAttSheet(){
+    var b = findBooking(attBookingId);
+    if(!b) return;
+    document.getElementById('att-sub').textContent =
+      b.subject + ' · ' + formatDateDisplay(b.date) + ' · ' +
+      formatTimeDisplay(b.from) + '–' + formatTimeDisplay(b.to);
+    var counts = emptyTally(), marked = 0;
+    STUDENT_NAMES.forEach(function(n){
+      var v = attDraft[n];
+      if(v && (v in counts)){ counts[v]++; marked++; }
+    });
+    document.getElementById('att-summary').innerHTML =
+      attTallyHTML(counts) +
+      '<div style="font-size:12.5px;color:var(--ink-soft);">' + marked + ' / ' + STUDENT_NAMES.length + ' ditanda</div>';
+    document.getElementById('att-list').innerHTML = STUDENT_NAMES.map(function(n){
+      return '<div class="att-row">' +
+        '<span class="att-name">' + escapeHtml(n) + '</span>' +
+        '<span class="att-seg">' + ATT_STATUSES.map(function(st){
+          var on = attDraft[n] === st.id;
+          return '<button type="button" data-att-set="'+escapeHtml(n)+'" data-att-val="'+st.id+'" ' +
+            'title="'+escapeHtml(st.label)+'" class="' + (on ? 'on t-'+st.tone : '') + '">'+st.short+'</button>';
+        }).join('') + '</span>' +
+      '</div>';
+    }).join('');
+  }
+  function openAttendance(id){
+    if(!isAdmin) return;
+    var b = findBooking(id);
+    if(!b) return;
+    attBookingId = id;
+    attDraft = Object.assign({}, b.attendance || {});
+    document.getElementById('att-error').hidden = true;
+    renderAttSheet();
+    attOverlay.hidden = false;
+  }
+  function closeAttendance(){ attOverlay.hidden = true; attBookingId = null; attDraft = {}; }
+
+  document.addEventListener('click', function(e){
+    var open = e.target.closest ? e.target.closest('[data-att-id]') : null;
+    if(open){ openAttendance(open.getAttribute('data-att-id')); }
+  });
+  document.getElementById('att-list').addEventListener('click', function(e){
+    var btn = e.target.closest ? e.target.closest('[data-att-set]') : null;
+    if(!btn) return;
+    var name = btn.getAttribute('data-att-set'), val = btn.getAttribute('data-att-val');
+    if(attDraft[name] === val) delete attDraft[name];   // tap again to clear
+    else attDraft[name] = val;
+    renderAttSheet();
+  });
+  document.getElementById('att-close-btn').addEventListener('click', closeAttendance);
+  attOverlay.addEventListener('click', function(e){ if(e.target.id === 'att-overlay') closeAttendance(); });
+  document.getElementById('att-save-btn').addEventListener('click', async function(){
+    if(!isAdmin || !attBookingId) return;
+    var btn = this, id = attBookingId, draft = Object.assign({}, attDraft);
+    var errEl = document.getElementById('att-error');
+    btn.disabled = true; btn.textContent = 'Menyimpan…';
+    var res = await persistBookings(function(base){
+      return base.map(function(x){
+        if(x.id !== id) return x;
+        return Object.assign({}, x, {
+          attendance: draft,
+          attendanceBy: currentUser ? currentUser.name : ADMIN_USER,
+          attendanceAt: Date.now()
+        });
+      });
+    });
+    btn.disabled = false; btn.textContent = 'Simpan Kehadiran';
+    if(res.ok){
+      var bk = findBooking(id);
+      toast('Kehadiran disimpan', 'success');
+      logActivity('UPDATE_BOOKING', {targetType:'booking', targetId:id,
+        description: (currentUser ? currentUser.name : ADMIN_USER) + ' menanda kehadiran ' + (bk ? bk.subject : '')});
+      closeAttendance();
+      renderActiveView();
+    } else {
+      errEl.textContent = res.message; errEl.hidden = false;
+    }
+  });
 
   /* =========================================================
      Cancel (delete) booking
@@ -3925,6 +4336,127 @@
         '<div class="bar-count">'+e[1]+'</div></div>';
     }).join('');
   }
+  function attStackedBar(counts){
+    var total = counts.hadir + counts.lewat + counts.dikecualikan + counts.tidak;
+    if(!total) return '';
+    return '<div class="att-bar">' + ATT_STATUSES.map(function(st){
+      var pct = (counts[st.id] / total) * 100;
+      return pct ? '<i style="width:'+pct.toFixed(2)+'%;background:'+ATT_TONE_VAR[st.tone]+'"></i>' : '';
+    }).join('') + '</div>';
+  }
+
+  function renderAttendanceStats(){
+    var el = document.getElementById('stat-attendance');
+    if(!el) return;
+    var classes = markedClasses();
+
+    if(!classes.length){
+      el.innerHTML = '<div class="empty-state"><div class="es-ic">○</div>' +
+        '<div class="display">Belum ada kehadiran ditanda</div>' +
+        '<p>' + (isAdmin ? 'Tanda kehadiran melalui butang pada setiap kelas dalam Jadual.'
+                         : 'Kehadiran akan dipapar di sini setelah ditanda.') + '</p></div>';
+      return;
+    }
+
+    if(isAdmin){
+      var all = attendanceOverall();
+      var rows = STUDENT_NAMES.map(function(n){
+        var c = all.perStudent[n] || emptyTally();
+        var t = c.hadir + c.lewat + c.dikecualikan + c.tidak;
+        return {name:n, c:c, total:t, rate:rateFrom(c)};
+      }).filter(function(r){ return r.total > 0; })
+        .sort(function(a,b){ return (b.rate === null ? -1 : b.rate) - (a.rate === null ? -1 : a.rate); });
+
+      el.innerHTML =
+        '<div class="chart-card">' +
+          '<h3>Keseluruhan</h3>' +
+          '<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:14px;">' +
+            '<span style="font-family:var(--font-display);font-size:30px;font-weight:800;letter-spacing:-0.04em;">' +
+              (all.rate === null ? '—' : all.rate + '%') + '</span>' +
+            '<span style="color:var(--ink-soft);font-size:13px;">kehadiran · ' + all.classes + ' kelas ditanda</span>' +
+          '</div>' +
+          attTallyHTML(all.counts) + attStackedBar(all.counts) +
+        '</div>' +
+        '<div class="chart-card"><h3>Mengikut Pelajar</h3>' +
+          (rows.length ? historyTableHTML(rows, [
+            {label:'Pelajar', get:function(r){ return escapeHtml(r.name); }},
+            {label:'Hadir',  get:function(r){ return r.c.hadir; }},
+            {label:'Lewat',  get:function(r){ return r.c.lewat; }},
+            {label:'Dikecualikan', get:function(r){ return r.c.dikecualikan; }},
+            {label:'Tidak',  get:function(r){ return r.c.tidak; }},
+            {label:'Kadar',  get:function(r){
+              if(r.rate === null) return '<span style="color:var(--ink-faint);">—</span>';
+              var tone = r.rate >= 90 ? 'st-ongoing' : (r.rate >= 75 ? 'st-upcoming' : 'st-extending');
+              return '<span class="status-pill '+tone+'">'+r.rate+'%</span>';
+            }}
+          ]) : '<div style="color:var(--ink-faint);font-size:13px;">Tiada data.</div>') +
+        '</div>';
+      return;
+    }
+
+    // Not admin: a student sees only their own record, nobody else's.
+    var me = currentUser ? currentUser.name : '';
+    if(STUDENT_NAMES.indexOf(me) === -1){
+      el.innerHTML = '<div class="empty-state"><div class="es-ic">○</div>' +
+        '<div class="display">Tiada rekod kehadiran</div>' +
+        '<p>Kehadiran direkodkan untuk pelajar sahaja.</p></div>';
+      return;
+    }
+    var mine = attendanceFor(me);
+    if(!mine.total){
+      el.innerHTML = '<div class="empty-state"><div class="es-ic">○</div>' +
+        '<div class="display">Belum ada rekod untuk anda</div>' +
+        '<p>Kehadiran anda akan dipapar di sini setelah ditanda.</p></div>';
+      return;
+    }
+    el.innerHTML = '<div class="att-mine">' +
+      '<div class="att-big">' + (mine.rate === null ? '—' : mine.rate + '%') + '</div>' +
+      '<div class="att-cap">Kehadiran anda · ' + mine.total + ' kelas direkodkan</div>' +
+      '<div style="margin-top:18px;">' + attTallyHTML(mine.counts) + attStackedBar(mine.counts) + '</div>' +
+    '</div>';
+  }
+
+  function renderAttendanceInsight(){
+    var el = document.getElementById('stat-att-insight');
+    if(!el) return;
+    var classes = markedClasses();
+    if(!classes.length){ el.innerHTML = ''; return; }
+
+    var text = '';
+    if(isAdmin){
+      var all = attendanceOverall();
+      if(all.rate === null){ el.innerHTML = ''; return; }
+      // Lowest-attendance subject, among those with enough records to mean anything.
+      var worst = null;
+      Object.keys(all.perSubject).forEach(function(sub){
+        var c = all.perSubject[sub];
+        var r = rateFrom(c);
+        if(r === null || (c.hadir + c.lewat + c.tidak) < 2) return;
+        if(!worst || r < worst.rate) worst = {subject:sub, rate:r};
+      });
+      var below = 0;
+      STUDENT_NAMES.forEach(function(n){
+        var r = rateFrom(all.perStudent[n] || emptyTally());
+        if(r !== null && r < 75) below++;
+      });
+      text = 'Kehadiran keseluruhan <strong>' + all.rate + '%</strong> daripada <strong>' +
+        all.classes + '</strong> kelas yang ditanda.' +
+        (worst ? ' Kadar paling rendah pada <strong>' + escapeHtml(worst.subject) + '</strong> (' + worst.rate + '%).' : '') +
+        (below ? ' <em>' + below + ' pelajar berada di bawah 75%.</em>' : '');
+    } else {
+      var me = currentUser ? currentUser.name : '';
+      if(STUDENT_NAMES.indexOf(me) === -1){ el.innerHTML = ''; return; }
+      var mine = attendanceFor(me);
+      if(!mine.total || mine.rate === null){ el.innerHTML = ''; return; }
+      text = 'Kehadiran anda <strong>' + mine.rate + '%</strong> daripada <strong>' + mine.total + '</strong> kelas.' +
+        (mine.counts.tidak ? ' Anda tidak hadir <strong>' + mine.counts.tidak + '</strong> kali.' : ' Anda tidak pernah tidak hadir.') +
+        (mine.counts.lewat ? ' <em>Lewat ' + mine.counts.lewat + ' kali (dikira hadir).</em>' : '');
+    }
+    el.innerHTML = '<div class="insight-card" style="margin-bottom:14px;">' +
+      '<div class="ins-label">' + icon('spark',13) + 'Attendance insight</div>' +
+      '<p class="ins-text">' + text + '</p></div>';
+  }
+
   function renderStatistik(){
     var now = new Date();
     var s = computeStats();
@@ -3945,16 +4477,29 @@
     document.getElementById('chart-hour').innerHTML = barChartHTML(s.byHour);
     document.getElementById('chart-teacher').innerHTML = barChartHTML(s.byTeacher);
 
+    renderAttendanceInsight();
+    renderAttendanceStats();
+
     var histEl = document.getElementById('stat-history');
     if(histEl){
       var allHistory = sortedBookings().slice().reverse();
-      histEl.innerHTML = historyTableHTML(allHistory, [
+      var cols = [
         {label:'Tarikh', get:function(b){ return escapeHtml(formatDateDisplay(b.date)); }},
         {label:'Subjek', get:function(b){ return escapeHtml(b.subject); }},
         {label:'Guru', get:function(b){ return escapeHtml(b.teacher); }},
         {label:'Masa', get:function(b){ return escapeHtml(formatTimeDisplay(b.from)+'–'+formatTimeDisplay(b.to)); }},
         {label:'Status', get:function(b){ return statusBadgeHTML(computeBookingStatus(b, now)); }}
-      ]);
+      ];
+      // The history table is where an admin actually goes to mark a class.
+      if(isAdmin){
+        cols.push({label:'Kehadiran', get:function(b){
+          if(b.cancelledAt) return '<span style="color:var(--ink-faint);">—</span>';
+          var marked = isMarked(b);
+          return '<button type="button" class="btn ghost sm" data-att-id="'+escapeHtml(b.id)+'">' +
+            (marked ? 'Lihat' : 'Tanda') + '</button>';
+        }});
+      }
+      histEl.innerHTML = historyTableHTML(allHistory, cols);
     }
   }
 
@@ -4010,6 +4555,52 @@
   /* =========================================================
      Tetapan
   ========================================================= */
+  /* =========================================================
+     Jadual Tetap (recurring weekly templates, admin only)
+  ========================================================= */
+  function renderTetap(){
+    var subjSel = document.getElementById('rt-subject');
+    if(subjSel && !subjSel.options.length){
+      subjSel.innerHTML = SUBJECTS.map(function(x){
+        return '<option value="'+escapeHtml(x.name)+'">'+escapeHtml(x.name)+'</option>';
+      }).join('');
+    }
+    var daySel = document.getElementById('rt-day');
+    if(daySel && !daySel.options.length){
+      daySel.innerHTML = WEEK_ORDER.map(function(d){
+        return '<option value="'+d+'">'+escapeHtml(DAY_LABELS_MY[d])+'</option>';
+      }).join('');
+    }
+    var list = document.getElementById('rt-list');
+    if(!list) return;
+    var items = teacherConfig.recurringTemplates || [];
+    if(!items.length){
+      list.innerHTML = '<div class="empty-state"><div class="es-ic">○</div>' +
+        '<div class="display">Belum ada jadual tetap</div>' +
+        '<p>Tambah kelas yang berulang setiap minggu di atas.</p></div>';
+      return;
+    }
+    var sorted = items.slice().sort(function(a,b){
+      var da = WEEK_ORDER.indexOf(a.day), db_ = WEEK_ORDER.indexOf(b.day);
+      return (da - db_) || a.from.localeCompare(b.from);
+    });
+    list.innerHTML = '<div class="card">' + sorted.map(function(t){
+      var color = SUBJECT_COLOR[t.subject] || 'var(--accent)';
+      return '<div class="settings-row">' +
+        '<div style="display:flex;align-items:center;gap:12px;min-width:0;">' +
+          '<span style="width:6px;height:6px;border-radius:50%;background:'+color+';flex:0 0 auto;"></span>' +
+          '<div style="min-width:0;">' +
+            '<div class="sr-subject">'+escapeHtml(t.subject)+'</div>' +
+            '<div class="sr-teacher">'+escapeHtml(DAY_LABELS_MY[t.day] || t.day)+' · ' +
+              escapeHtml(formatTimeDisplay(t.from))+'–'+escapeHtml(formatTimeDisplay(t.to)) +
+              ' · '+escapeHtml(t.teacher)+'</div>' +
+          '</div>' +
+        '</div>' +
+        '<button type="button" class="btn ghost sm" data-rt-del="'+escapeHtml(t.id)+'">Buang</button>' +
+      '</div>';
+    }).join('') + '</div>';
+  }
+
   function renderTetapan(){
     document.getElementById('settings-teacher-list').innerHTML = SUBJECTS.map(function(s){
       var teacher = teacherConfig.subjectTeachers[s.name] || '—';
@@ -4118,7 +4709,7 @@
     }
   }
   async function saveTeacherConfig(mutateFn){
-    var candidate = { subjectTeachers: Object.assign({}, teacherConfig.subjectTeachers), workshopTeachers: JSON.parse(JSON.stringify(teacherConfig.workshopTeachers)), teacherGenders: Object.assign({}, teacherConfig.teacherGenders) };
+    var candidate = { subjectTeachers: Object.assign({}, teacherConfig.subjectTeachers), workshopTeachers: JSON.parse(JSON.stringify(teacherConfig.workshopTeachers)), teacherGenders: Object.assign({}, teacherConfig.teacherGenders), recurringTemplates: JSON.parse(JSON.stringify(teacherConfig.recurringTemplates || [])) };
     mutateFn(candidate);
     try{
       await configDocRef.set(candidate);
@@ -4138,6 +4729,7 @@
     // ongoing/extend class has just ended, generates the relevant notifications.
     renderActiveView();
     generateTimeBasedNotifications();
+    generateRecurringBookings();   // catches the Sunday rollover while the tab is open
   }
 
   /* =========================================================
@@ -4145,6 +4737,111 @@
      only ever runs once, no matter how many times/devices load the page)
   ========================================================= */
   var flagsColRef = metaDocRef.collection('flags');
+
+  /* =========================================================
+     Recurring weekly schedule
+     Templates never become bookings for the whole future. The current
+     week is always materialised, and the following week is unlocked on
+     Sunday — so on Sunday 27/9 the week 28/9-4/10 appears. Generated
+     classes are marked autoGenerated so they stay silent.
+  ========================================================= */
+  function recurringWanted(now){
+    var templates = teacherConfig.recurringTemplates || [];
+    if(!templates.length) return [];
+    var weekStarts = [startOfWeek(now)];
+    if(now.getDay() === 0){ weekStarts.push(startOfWeek(addDays(now, 1))); }  // Sunday reveals next week
+    var todayISO = isoDate(now);
+    var wanted = [];
+    weekStarts.forEach(function(ws){
+      templates.forEach(function(t){
+        var idx = WEEK_ORDER.indexOf(t.day);
+        if(idx === -1) return;
+        var date = isoDate(addDays(ws, idx));
+        // Never back-fill: a template added midweek must not invent classes
+        // for days that have already passed.
+        if(date < todayISO) return;
+        wanted.push({ t: t, date: date });
+      });
+    });
+    return wanted;
+  }
+  // Cancelled instances count as present, so a class someone cancelled is
+  // never silently resurrected on the next load.
+  function recurringMissing(base, wanted){
+    return wanted.filter(function(w){
+      return !base.some(function(b){ return b.templateId === w.t.id && b.date === w.date; });
+    });
+  }
+  function generateRecurringBookings(){
+    if(!firstBookingsLoaded) return;   // never write before the live array has arrived
+    var wanted = recurringWanted(new Date());
+    if(!wanted.length) return;
+    if(!recurringMissing(bookings, wanted).length) return;   // cheap check; skips the transaction
+    db.runTransaction(function(tx){
+      return tx.get(bookingsDocRef).then(function(snap){
+        var data = (snap.exists && snap.data() && snap.data().data) || [];
+        var base = Array.isArray(data) ? data : [];
+        var missing = recurringMissing(base, wanted);
+        if(!missing.length) return;
+        var ts = Date.now();
+        var extra = missing.map(function(w){
+          return {
+            id: genId(), subject: w.t.subject, teacher: w.t.teacher, date: w.date,
+            from: w.t.from, to: w.t.to, notes: '',
+            createdBy: 'JADUAL TETAP', createdByType: 'Sistem', createdAt: ts,
+            originalTo: w.t.to, extensionActive: false, extensionHistory: [],
+            autoGenerated: true, templateId: w.t.id
+          };
+        });
+        tx.set(bookingsDocRef, { data: base.concat(extra), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      });
+    }).catch(function(e){
+      console.error('generateRecurringBookings: transaksi gagal, akan cuba lagi.', e);
+    });
+  }
+
+  /* ---- admin controls ---- */
+  document.getElementById('rt-add-btn').addEventListener('click', async function(){
+    var err = document.getElementById('rt-error');
+    err.hidden = true;
+    if(!isAdmin){ return; }
+    var subject = document.getElementById('rt-subject').value;
+    var teacher = document.getElementById('rt-teacher').value.trim().toUpperCase();
+    var day = document.getElementById('rt-day').value;
+    var from = document.getElementById('rt-from').value;
+    var to = document.getElementById('rt-to').value;
+    if(!subject || !day || !from || !to){
+      err.textContent = 'Sila lengkapkan subjek, hari dan masa.'; err.hidden = false; return;
+    }
+    if(toMinutes(to) <= toMinutes(from)){
+      err.textContent = 'Masa tamat mesti selepas masa mula.'; err.hidden = false; return;
+    }
+    if(!teacher){ teacher = teacherConfig.subjectTeachers[subject] || 'TIDAK DITETAPKAN'; }
+    var entry = { id: genId(), subject: subject, teacher: teacher, day: day, from: from, to: to,
+                  createdBy: currentUser ? currentUser.name : ADMIN_USER, createdAt: Date.now() };
+    var res = await saveTeacherConfig(function(cfg){
+      cfg.recurringTemplates = (cfg.recurringTemplates || []).concat([entry]);
+    });
+    if(res.ok){
+      toast('Jadual tetap ditambah', 'success');
+      document.getElementById('rt-from').value = '';
+      document.getElementById('rt-to').value = '';
+      document.getElementById('rt-teacher').value = '';
+      generateRecurringBookings();
+    } else {
+      err.textContent = res.message; err.hidden = false;
+    }
+  });
+  document.getElementById('rt-list').addEventListener('click', async function(e){
+    var btn = e.target.closest ? e.target.closest('[data-rt-del]') : null;
+    if(!btn || !isAdmin) return;
+    var id = btn.getAttribute('data-rt-del');
+    if(!confirm('Buang jadual tetap ini? Kelas yang sudah dijana tidak akan dipadam.')) return;
+    var res = await saveTeacherConfig(function(cfg){
+      cfg.recurringTemplates = (cfg.recurringTemplates || []).filter(function(t){ return t.id !== id; });
+    });
+    toast(res.ok ? 'Jadual tetap dibuang' : res.message, res.ok ? 'info' : 'error');
+  });
 
   function seedHistoricalBookings(){
     // Flag id bumped to "-v3". Root cause of the earlier failures: this used
@@ -4318,11 +5015,13 @@
         teacherConfig.subjectTeachers = Object.assign({}, DEFAULT_SUBJECT_TEACHERS, d.subjectTeachers || {});
         teacherConfig.workshopTeachers = d.workshopTeachers || {};
         teacherConfig.teacherGenders = d.teacherGenders || {};
+        teacherConfig.recurringTemplates = Array.isArray(d.recurringTemplates) ? d.recurringTemplates : [];
       } else if(!configSeeded){
         configSeeded = true;
         configDocRef.set({ subjectTeachers: DEFAULT_SUBJECT_TEACHERS, workshopTeachers: {} }).catch(function(){});
       }
       renderActiveView();
+      generateRecurringBookings();
     }, function(){ /* ignore config stream errors, defaults stay in effect */ });
 
     bookingsDocRef.onSnapshot(function(snap){
@@ -4337,6 +5036,7 @@
         // seed's add-only merge is always working from live data and can
         // never race ahead and overwrite it with just the 3 seed records.
         seedHistoricalBookings();
+        generateRecurringBookings();
       }
     }, function(){ toast('Tidak dapat sambung ke storan dikongsi.', 'error'); });
 
