@@ -2107,7 +2107,7 @@
   };
 
   // Bump this one line to change the version shown across the app.
-  var APP_VERSION = 'v3.2';
+  var APP_VERSION = 'v3.2.1';
 
   /* Admin account. The passcode lives in the page, so this is a gate that
      keeps the admin tools out of the way of ordinary users — not real
@@ -2117,6 +2117,26 @@
   var isAdmin = false;
 
   var STUDENT_NAMES = ["ADRIN","ALEEYSHA","DEA","HUSNA","IVY","KAETLYNN","KHAERA","AKIM","YASIN","SAFWAN","NATHANEIL","HAZARINNA","OCFREATY"];
+
+  // Subjects where only part of the class attends. Anything not listed here
+  // falls back to the full class.
+  var SUBJECT_ROSTERS = {
+    "Pendidikan Islam": ["ALEEYSHA","DEA","HUSNA","KHAERA","AKIM","YASIN","SAFWAN","HAZARINNA"],
+    "Pendidikan Moral": ["ADRIN","IVY","KAETLYNN","NATHANEIL","OCFREATY"]
+  };
+  function rosterFor(subject){
+    var r = SUBJECT_ROSTERS[subject];
+    return (r && r.length) ? r.slice() : STUDENT_NAMES.slice();
+  }
+  // Roster plus anyone already marked, so a record left behind by an earlier
+  // roster stays visible and can be cleared rather than silently orphaned.
+  function rosterForBooking(b){
+    var names = rosterFor(b.subject);
+    Object.keys(b.attendance || {}).forEach(function(n){
+      if(names.indexOf(n) === -1) names.push(n);
+    });
+    return names;
+  }
   var ACTIVITY_ICONS = {
     LOGIN:{ic:'login', tone:'var(--live-ink)'},
     LOGOUT:{ic:'logout', tone:'var(--ink-faint)'},
@@ -4016,15 +4036,18 @@
     document.getElementById('att-sub').textContent =
       b.subject + ' · ' + formatDateDisplay(b.date) + ' · ' +
       formatTimeDisplay(b.from) + '–' + formatTimeDisplay(b.to);
+    var roster = rosterForBooking(b);
     var counts = emptyTally(), marked = 0;
-    STUDENT_NAMES.forEach(function(n){
+    roster.forEach(function(n){
       var v = attDraft[n];
       if(v && (v in counts)){ counts[v]++; marked++; }
     });
+    var partial = !!SUBJECT_ROSTERS[b.subject];
     document.getElementById('att-summary').innerHTML =
       attTallyHTML(counts) +
-      '<div style="font-size:12.5px;color:var(--ink-soft);">' + marked + ' / ' + STUDENT_NAMES.length + ' ditanda</div>';
-    document.getElementById('att-list').innerHTML = STUDENT_NAMES.map(function(n){
+      '<div style="font-size:12.5px;color:var(--ink-soft);">' + marked + ' / ' + roster.length + ' ditanda' +
+        (partial ? ' · senarai khas ' + escapeHtml(b.subject) : '') + '</div>';
+    document.getElementById('att-list').innerHTML = roster.map(function(n){
       return '<div class="att-row">' +
         '<span class="att-name">' + escapeHtml(n) + '</span>' +
         '<span class="att-seg">' + ATT_STATUSES.map(function(st){
