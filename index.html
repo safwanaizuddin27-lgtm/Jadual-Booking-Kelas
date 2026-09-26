@@ -959,6 +959,7 @@
   .week-head-row{
     display:grid;grid-template-columns:54px repeat(7,1fr);
     border-bottom:1px solid var(--border);background:var(--surface-2);
+    position:sticky;top:0;z-index:3;
   }
   .week-head-cell{
     padding:var(--s3) var(--s1);text-align:center;font-size:9.5px;font-weight:700;
@@ -972,7 +973,7 @@
   }
   .week-head-cell.is-today{color:var(--accent-bright);background:var(--accent-soft);}
   .week-head-cell.is-today .wd-date{color:var(--accent-bright);}
-  .week-scroll{overflow-x:auto;}
+  .week-scroll{overflow:auto;max-height:min(72vh,780px);overscroll-behavior:contain;}
   .week-scroll-inner{min-width:680px;}
   .week-body{position:relative;display:grid;grid-template-columns:54px repeat(7,1fr);}
   .week-time-col{display:flex;flex-direction:column;background:var(--surface-2);}
@@ -2107,7 +2108,7 @@
   };
 
   // Bump this one line to change the version shown across the app.
-  var APP_VERSION = 'v3.2.1';
+  var APP_VERSION = 'v3.2.2';
 
   /* Admin account. The passcode lives in the page, so this is a gate that
      keeps the admin tools out of the way of ordinary users — not real
@@ -2154,8 +2155,8 @@
   var WEEK_ORDER = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
   var MALAY_MONTHS = ["Januari","Februari","Mac","April","Mei","Jun","Julai","Ogos","September","Oktober","November","Disember"];
 
-  var WEEK_START_HOUR = 7;
-  var WEEK_END_HOUR = 19;
+  var WEEK_START_HOUR = 0;
+  var WEEK_END_HOUR = 24;
   var ROW_HEIGHT = 48;
 
   /* =========================================================
@@ -2188,7 +2189,7 @@
   // Where availability analysis may begin on a given weekday.
   function analysisStart(dayName){
     var sh = SCHOOL_HOURS[dayName];
-    return sh ? toMinutes(sh.to) : WEEK_START_HOUR * 60;
+    return sh ? toMinutes(sh.to) : 7 * 60;
   }
 
   // First genuinely free window of `lenMin`, skipping the school block and
@@ -3562,7 +3563,7 @@
     if(calMode === 'day') body.innerHTML = renderDayViewHTML(filtered, calAnchor);
     else if(calMode === 'week') body.innerHTML = renderWeekViewHTML(filtered, calAnchor);
     else body.innerHTML = renderMonthViewHTML(filtered, calAnchor);
-    if(calMode === 'week') positionWeekEvents(filtered, calAnchor);
+    if(calMode === 'week'){ positionWeekEvents(filtered, calAnchor); scrollWeekIntoView(filtered, calAnchor); }
   }
 
   function renderDayViewHTML(list, date){
@@ -3646,6 +3647,25 @@
       group.forEach(function(it){ it.cols = colEnds.length; });
     });
     return sorted;
+  }
+
+  // A full 24-hour grid would otherwise open on an empty midnight. Start at
+  // the first class of the week (with an hour of lead-in), or 07:00 when the
+  // week is empty.
+  function scrollWeekIntoView(list, anchor){
+    var el = document.querySelector('.week-scroll');
+    if(!el) return;
+    var ws = startOfWeek(anchor), earliest = null;
+    for(var i = 0; i < 7; i++){
+      var iso = isoDate(addDays(ws, i));
+      list.forEach(function(b){
+        if(b.date !== iso) return;
+        var m = toMinutes(b.from);
+        if(earliest === null || m < earliest) earliest = m;
+      });
+    }
+    var targetMin = earliest === null ? 7*60 : Math.max(0, earliest - 60);
+    el.scrollTop = Math.max(0, (targetMin - WEEK_START_HOUR*60) * (ROW_HEIGHT/60));
   }
 
   function positionWeekEvents(list, anchor){
