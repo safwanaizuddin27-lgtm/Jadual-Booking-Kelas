@@ -1,0 +1,102 @@
+/* ==========================================================================
+   Langit 5Σ — tokens
+   Layout: glass panels float over a live night sky; a rail on wide screens,
+   a tab bar on phones; content is a bento grid.
+   Night is the product's own look (dark-first). Dawn is its light twin:
+   lavender-to-peach sky, navy ink, gold kept for achievement.
+   Gold = action and achievement (the class's "bintang skibidi").
+   Subject colours = identity. Green / orange / pink = live / warning / danger.
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+  --bg: #050714;
+  --glass: rgba(17, 21, 56, 0.56);
+  --glass-strong: rgba(12, 15, 42, 0.8);
+  --glass-solid: #10143A;
+  --line: rgba(196, 204, 255, 0.13);
+  --line-2: rgba(196, 204, 255, 0.24);
+  --hi: rgba(255, 255, 255, 0.075);
+  --fill: rgba(196, 204, 255, 0.07);
+  --fill-2: rgba(196, 204, 255, 0.12);
+  --ink: #F2F3FF;
+  --ink-2: #BBC0E8;
+  --ink-3: #9096C6;
+  --gold: #FFCF6B;
+  --gold-2: #FFE3A3;
+  --gold-text: #FFD889;
+  --gold-soft: rgba(255, 207, 107, 0.14);
+  --gold-line: rgba(255, 207, 107, 0.42);
+  --gold-glow: rgba(255, 190, 70, 0.45);
+  --primary-bg: linear-gradient(180deg, #FFE39F 0%, #FFCF6B 55%, #F2B544 100%);
+  --primary-ink: #241800;
+  --primary-shadow: 0 12px 28px -14px rgba(255, 186, 60, 0.75);
+  --live: #3FE6A8; --live-ink: #6BF2C1; --live-soft: rgba(63, 230, 168, 0.14); --live-line: rgba(63, 230, 168, 0.36);
+  --warn: #FFAA5C; --warn-ink: #FFC189; --warn-soft: rgba(255, 170, 92, 0.14); --warn-line: rgba(255, 170, 92, 0.38);
+  --danger: #FF6B86; --danger-ink: #FF9CB0; --danger-soft: rgba(255, 107, 134, 0.14); --danger-line: rgba(255, 107, 134, 0.4);
+  --info: #A99BFF; --info-ink: #C7BDFF; --info-soft: rgba(169, 155, 255, 0.15);
+  --scrim: rgba(3, 4, 18, 0.55);
+  --shadow-1: 0 1px 0 var(--hi) inset, 0 18px 40px -24px rgba(0, 0, 12, 0.85);
+  --shadow-2: 0 1px 0 var(--hi) inset, 0 30px 70px -30px rgba(0, 0, 12, 0.95);
+  --star: #F4F6FF;
+  --school: rgba(196, 204, 255, 0.09);
+
+  --f-display: "Adventor", "Avenir Next", "Century Gothic", "Futura", "Inter", system-ui, sans-serif;
+  --f-ui: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --r-tile: 28px;
+  --r-card: 20px;
+  --r-ctl: 14px;
+  --r-pill: 999px;
+  --blur: blur(22px) saturate(165%);
+  --ease: cubic-bezier(0.2, 0.9, 0.2, 1);
+  --rail-w: 92px;
+  --top-h: 72px;
+  --tab-h: 72px;
+  --gutter: clamp(16px, 2.6vw, 32px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+}
+
+/* Dawn — when the viewer's system is light and no explicit choice is set (before scripts run) */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --bg: #EEEBF8; --glass: rgba(255, 255, 255, 0.6); --glass-strong: rgba(255, 255, 255, 0.84); --glass-solid: #FFFFFF;
+    --line: rgba(28, 30, 90, 0.1); --line-2: rgba(28, 30, 90, 0.18); --hi: rgba(255, 255, 255, 0.9); --fill: rgba(28, 30, 90, 0.05); --fill-2: rgba(28, 30, 90, 0.09);
+    --ink: #121436; --ink-2: #464B7A; --ink-3: #62679A;
+    --gold: #E9A62C; --gold-2: #F5C766; --gold-text: #8A5800; --gold-soft: rgba(233, 166, 44, 0.14); --gold-line: rgba(176, 116, 8, 0.36); --gold-glow: rgba(233, 166, 44, 0.35);
+    --primary-bg: linear-gradient(180deg, #2E36A8 0%, #1B2160 100%); --primary-ink: #FFE7AE; --primary-shadow: 0 12px 26px -14px rgba(27, 33, 96, 0.7);
+    --live: #11A472; --live-ink: #0A7550; --live-soft: rgba(17, 164, 114, 0.12); --live-line: rgba(17, 164, 114, 0.34);
+    --warn: #E48720; --warn-ink: #8E4F00; --warn-soft: rgba(228, 135, 32, 0.13); --warn-line: rgba(228, 135, 32, 0.36);
+    --danger: #DF3E5D; --danger-ink: #AE1C3A; --danger-soft: rgba(223, 62, 93, 0.1); --danger-line: rgba(223, 62, 93, 0.32);
+    --info: #4C40D8; --info-ink: #3A30B8; --info-soft: rgba(76, 64, 216, 0.1);
+    --scrim: rgba(24, 26, 70, 0.28);
+    --shadow-1: 0 1px 0 var(--hi) inset, 0 16px 36px -22px rgba(30, 32, 90, 0.35);
+    --shadow-2: 0 1px 0 var(--hi) inset, 0 28px 64px -28px rgba(30, 32, 90, 0.45);
+    --star: #2C3370; --school: rgba(28, 30, 90, 0.06);
+  }
+}
+/* Dawn — explicit choice (the app's theme switch) */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #EEEBF8; --glass: rgba(255, 255, 255, 0.6); --glass-strong: rgba(255, 255, 255, 0.84); --glass-solid: #FFFFFF;
+  --line: rgba(28, 30, 90, 0.1); --line-2: rgba(28, 30, 90, 0.18); --hi: rgba(255, 255, 255, 0.9); --fill: rgba(28, 30, 90, 0.05); --fill-2: rgba(28, 30, 90, 0.09);
+  --ink: #121436; --ink-2: #464B7A; --ink-3: #62679A;
+  --gold: #E9A62C; --gold-2: #F5C766; --gold-text: #8A5800; --gold-soft: rgba(233, 166, 44, 0.14); --gold-line: rgba(176, 116, 8, 0.36); --gold-glow: rgba(233, 166, 44, 0.35);
+  --primary-bg: linear-gradient(180deg, #2E36A8 0%, #1B2160 100%); --primary-ink: #FFE7AE; --primary-shadow: 0 12px 26px -14px rgba(27, 33, 96, 0.7);
+  --live: #11A472; --live-ink: #0A7550; --live-soft: rgba(17, 164, 114, 0.12); --live-line: rgba(17, 164, 114, 0.34);
+  --warn: #E48720; --warn-ink: #8E4F00; --warn-soft: rgba(228, 135, 32, 0.13); --warn-line: rgba(228, 135, 32, 0.36);
+  --danger: #DF3E5D; --danger-ink: #AE1C3A; --danger-soft: rgba(223, 62, 93, 0.1); --danger-line: rgba(223, 62, 93, 0.32);
+  --info: #4C40D8; --info-ink: #3A30B8; --info-soft: rgba(76, 64, 216, 0.1);
+  --scrim: rgba(24, 26, 70, 0.28);
+  --shadow-1: 0 1px 0 var(--hi) inset, 0 16px 36px -22px rgba(30, 32, 90, 0.35);
+  --shadow-2: 0 1px 0 var(--hi) inset, 0 28px 64px -28px rgba(30, 32, 90, 0.45);
+  --star: #2C3370; --school: rgba(28, 30, 90, 0.06);
+}
+:root[data-theme="dark"] { color-scheme: dark; }
+
+@media (max-width: 1023px) { :root { --rail-w: 76px; } }
+@media (max-width: 639px) { :root { --top-h: 60px; } }
+/* Phones: a lighter blur keeps scrolling smooth over the moving sky. */
+@media (max-width: 767px) { :root { --blur: blur(14px) saturate(150%); } }

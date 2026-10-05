@@ -1,0 +1,11 @@
+{
+  "name": "5sigma-class-hub",
+  "version": "4.0.0",
+  "private": true,
+  "description": "Langit 5 Sigma: jadual, tempahan dan kehadiran kelas tambahan 5 Sigma.",
+  "scripts": {
+    "build": "node build.mjs",
+    "build:artifact": "node build.mjs --artifact"
+  },
+  "engines": { "node": ">=18" }
+}
