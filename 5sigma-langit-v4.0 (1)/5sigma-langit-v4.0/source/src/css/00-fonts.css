@@ -1,9 +1,0 @@
-/* Self-hosted fonts (no network needed). Licences: assets/fonts/.
-   TeX Gyre Adventor: geometric display face for names, numbers and titles.
-   Inter: the interface and reading text. */
-@font-face { font-family: "Adventor"; src: url("../assets/fonts/adventor-400.woff") format("woff"); font-weight: 400; font-display: swap; }
-@font-face { font-family: "Adventor"; src: url("../assets/fonts/adventor-700.woff") format("woff"); font-weight: 600 800; font-display: swap; }
-@font-face { font-family: "Inter"; src: url("../assets/fonts/inter-400.woff") format("woff"); font-weight: 400; font-display: swap; }
-@font-face { font-family: "Inter"; src: url("../assets/fonts/inter-500.woff") format("woff"); font-weight: 500; font-display: swap; }
-@font-face { font-family: "Inter"; src: url("../assets/fonts/inter-600.woff") format("woff"); font-weight: 600; font-display: swap; }
-@font-face { font-family: "Inter"; src: url("../assets/fonts/inter-700.woff") format("woff"); font-weight: 700 800; font-display: swap; }
